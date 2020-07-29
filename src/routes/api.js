@@ -1,0 +1,157 @@
+const express = require("express");
+const response = require("../lib/response");
+const Users = require("../services/users");
+const Projects = require("../services/projects");
+const { config } = require("../config/index");
+
+function Api(app) {
+  const router = express.Router();
+  app.use("/", router);
+
+  const version = {
+    version: config.version,
+    project: "Josephine",
+    company: "Dploy SAS",
+    web: "https://josephinelabs.com",
+  };
+
+  const users = new Users();
+  const projects = new Projects();
+
+  router.get("/", async function (req, res, next) {
+    try {
+      res.status(200).json(version);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/signin", async function (req, res, next) {
+    const { username } = req.body;
+    const { password } = req.body;
+    const { app } = req.body;
+    try {
+      const results = await users.signIn({ username, password, app });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/valid/:username", async function (req, res, next) {
+    const { username } = req.params;
+    try {
+      const results = await users.valid({ username });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/signup", async function (req, res, next) {
+    const { username } = req.body;
+    const { password } = req.body;
+    const { confirmation } = req.body;
+    const { caption } = req.body;
+    const { project } = req.body;
+    const { module_id } = req.body;
+    const { city_id } = req.body;
+    const { code } = req.body;
+    const { app } = req.body;
+    try {
+      const results = await users.signup({
+        username,
+        password,
+        confirmation,
+        caption,
+        project,
+        module_id,
+        city_id,
+        code,
+        app,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/forgot", async function (req, res, next) {
+    const { username } = req.body;
+    const { password } = req.body;
+    const { confirmation } = req.body;
+    const { code } = req.body;
+    const { app } = req.body;
+    try {
+      const results = await users.forgot({
+        username,
+        password,
+        confirmation,
+        code,
+        app,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/message", async function (req, res, next) {
+    const { theme } = req.body;
+    const { message } = req.body;
+    try {
+      socket.io.emit(theme, { message });
+      const status = 200;
+      req = { message };
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/dpas/:id", async function (req, res, next) {
+    const { id } = req.params;
+    try {
+      const results = await projects.dpa({ id });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/dpas", async function (req, res, next) {
+    const { id } = req.query;
+    const { _class } = req.query;
+    const { state } = req.query;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      const results = await projects.dpas({
+        id,
+        _class,
+        state,
+        search,
+        page,
+        rows,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+}
+
+module.exports = Api;

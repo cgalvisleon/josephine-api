@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="./css/portrait.css" rel="stylesheet" />
+  </head>
+  <body class="letter">
+    <div class="table">
+      <div class="tr th">
+        <div class="td logo">
+          <img class="img" style="width:38.5mm;height:13mm;" src="" />
+        </div>
+        <div class="col">
+          <div class="tr">
+            <div class="td" style="width:77.5mm;">
+              <div class="label"></div>
+            </div>
+          </div>
+          <div class="tr">
+            <div class="td" style="width:77.5mm;">
+              <div class="label">${project.address}, ${project._data.city}</div>
+            </div>
+          </div>
+          <div class="tr">
+            <div class="td" style="width:77.5mm;">
+              <div class="label">${title}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="tr">
+            <div class="td bl0" style="width:25mm;">
+              <div class="label">${formatDate(dateOf)}</div>
+            </div>
+          </div>
+          <div class="tr">
+            <div class="td bl0" style="width:25mm;height:8.8mm;">
+              <div class="code">${data.code}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table">
+      <div class="tr">
+        <div class="td" style="width:16mm;">
+          <div class="caption">Proveedor</div>
+        </div>
+        <div class="td" style="width:84.5mm;">
+          <div class="label">${_data.provider}</div>
+        </div>
+        <div class="td" style="width:16mm;">
+          <div class="caption">Despacho</div>
+        </div>
+        <div class="td" style="width:25mm;">
+          <div class="label t-c">${formatDate(dateOf)}</div>
+        </div>
+      </div>
+      <div class="tr">
+        <div class="td" style="width:16mm;">
+          <div class="caption">Dirección</div>
+        </div>
+        <div class="td" style="width:43mm;">
+          <div class="label">${_data.address}</div>
+        </div>
+        <div class="td" style="width:16mm;">
+          <div class="caption">Ciudad</div>
+        </div>
+        <div class="td" style="width:25mm;">
+          <div class="label">${_data.city}</div>
+        </div>
+        <div class="td" style="width:16mm;"><div class="caption">RUT</div></div>
+        <div class="td" style="width:25mm;">
+          <div class="label t-c">${_data.rut}</div>
+        </div>
+      </div>
+      <div class="tr">
+        <div class="td" style="width:16mm;">
+          <div class="caption">Correo</div>
+        </div>
+        <div class="td" style="width:43mm;">
+          <div class="label">${_data.email}</div>
+        </div>
+        <div class="td" style="width:16mm;">
+          <div class="caption">Teléfono</div>
+        </div>
+        <div class="td" style="width:25mm;">
+          <div class="label">${_data.phone}</div>
+        </div>
+        <div class="td" style="width:16mm;">
+          <div class="caption">Celular</div>
+        </div>
+        <div class="td" style="width:25mm;">
+          <div class="label">${_data.cellphone}</div>
+        </div>
+      </div>
+    </div>
+    <div class="table">
+      <div class="tr">
+        <div class="td" style="width:16mm;">
+          <div class="caption">Solicita</div>
+        </div>
+        <div class="td" style="width:43mm;">
+          <div class="label">${_data.request}</div>
+        </div>
+        <div class="td" style="width:16mm;">
+          <div class="caption">Autoriza</div>
+        </div>
+        <div class="td" style="width:25mm;">
+          <div class="label">${_data.authorize}</div>
+        </div>
+        <div class="td" style="width:16mm;">
+          <div class="caption">Pago</div>
+        </div>
+        <div class="td" style="width:25mm;">
+          <div class="label">${_data.pay}</div>
+        </div>
+      </div>
+    </div>
+    <div class="table">
+      <div class="tr th">
+        <div class="td" style="width:17mm;">
+          <div class="caption">Referencia</div>
+        </div>
+        <div class="td" style="width:13mm;">
+          <div class="caption">Cantidad</div>
+        </div>
+        <div class="td" style="width:8mm;"><div class="caption">Und</div></div>
+        <div class="td" style="width:35mm;">
+          <div class="caption">Descripción</div>
+        </div>
+        <div class="td" style="width:20.5mm;">
+          <div class="caption">Fabricante</div>
+        </div>
+        <div class="td" style="width:8mm;"><div class="caption">IVA</div></div>
+        <div class="td" style="width:19mm;">
+          <div class="caption">Unitario</div>
+        </div>
+        <div class="td" style="width:20mm;">
+          <div class="caption">Total</div>
+        </div>
+      </div>
+    </div>
+    <div class="table">
+      ${rows}
+    </div>
+    <div class="table">
+      <div class="tr th">
+        <div class="td" style="width:122mm;">
+          <div class="caption t-r">Subtotal</div>
+        </div>
+        <div class="td" style="width:20mm;">
+          <div class="caption t-r">${formatMoney(data.cost)}</div>
+        </div>
+      </div>
+      <div class="tr th">
+        <div class="td" style="width:122mm;">
+          <div class="caption t-r">IVA</div>
+        </div>
+        <div class="td" style="width:20mm;">
+          <div class="caption t-r">${formatMoney(data.taxes)}</div>
+        </div>
+      </div>
+      <div class="tr th">
+        <div class="td" style="width:122mm;">
+          <div class="caption t-r">Total</div>
+        </div>
+        <div class="td" style="width:20mm;">
+          <div class="caption t-r">${formatMoney(data.total)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="table">
+      <div class="tr th">
+        <div class="td" style="width:50mm;height:14mm;">
+          <div class="caption t-l">Autoriza</div>
+        </div>
+        <div class="td" style="width:92mm;height:14mm;">
+          <div class="caption t-l">Observación: ${data.observations}</div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <footer>
+    <div>
+      <div class="date_print"></div>
+      <div class="username"></div>
+      <div class="pages">Página ${page} de ${pages}</div>
+    </div>
+  </footer>
+</html>

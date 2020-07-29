@@ -1,0 +1,484 @@
+const PgLib = require("../lib/postgresql");
+const { getValue, validEmail, validCellPhone, respond } = require("../lib/utilities");
+const {
+  MSG0001,
+  MSG0002,
+  MSG0003,
+  MSG0004,
+  MSG0005,
+  MSG0006,
+  MSG0008,
+  MSG0009,
+  MSG0010,
+  MSG0011,
+  MSG0012,
+  MSG0013,
+  MSG0014,
+  MSG0015,
+  MSG0016,
+  MSG0017,
+  MSG0018,
+} = require("../lib/msg");
+const { createToken, userId } = require("./auth");
+const Mailer = require("./mailer");
+const AWS = require("./aws");
+
+class Model {
+  constructor(params) {
+    this.db = new PgLib();
+    this.mailer = new Mailer({});
+    this.aws = new AWS({});
+    this.params = params;
+  }
+
+  scheme(data) {
+    return {
+      _id: getValue(data, "_id", "-1"),
+      _state: getValue(data, "_state", "0"),
+      username: getValue(data, "username", ""),
+      caption: getValue(data, "caption", ""),
+      description: getValue(data, "description", ""),
+      email: getValue(data, "email", ""),
+      phone: getValue(data, "phone", ""),
+      cellphone: getValue(data, "cellphone", ""),
+      address: getValue(data, "address", ""),
+      city_id: getValue(data, "city_id", ""),
+      city: getValue(data, "city", ""),
+      identification: getValue(data, "identification", ""),
+      identification_tp: getValue(data, "identification_tp", "-1"),
+      identification_type: getValue(data, "identification_type", ""),
+      _data: getValue(data, "_data", {}),
+      avatar: getValue(data, "avatar", ""),
+      header_foto: getValue(data, "header_foto", ""),
+      projects: getValue(data, "projects", []),
+      _v: getValue(data, "_v", 0),
+    };
+  }
+
+  async signIn(username, password, app) {
+    if (!username || username === "") {
+      return respond(200, {}, 206, MSG0001);
+    } else if (!password || password === "") {
+      return respond(200, {}, 206, MSG0002);
+    } else if (!app || app === "") {
+      return respond(200, {}, 400, MSG0015);
+    } else {
+      const query = "SELECT * FROM js_core.SIGNIN($1, $2) RESULT";
+      const params = [username, password];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          return result.result;
+        })
+        .then((result) => {
+          const msg = getValue(result, "msg", "");
+          if (msg !== "") {
+            throw msg;
+          } else {
+            const userId = getValue(result, "_id", "");
+            return createToken(userId, app).then((result) => {
+              return result;
+            });
+          }
+        })
+        .then((result) => {
+          if (validEmail(username)) {
+            this.mailer.sendAlertMail(
+              username,
+              "Alerta de seguridad, inicio de sesión",
+              "Inicio de sesión",
+              "Te damos nuevamente la bienvenida a tu cuenta",
+              `Acabas de iniciar sesión con tu cuenta <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
+              "Reportar",
+              "",
+              "Gracias por trabajar con nosotros"
+            );
+          } else if (validCellPhone(username)) {
+            this.aws.sendSMS(username, "Inicio de sesión", "Dploy; Acabas de iniciar sesión");
+          }
+          return respond(200, result);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
+  async profile(id) {
+    const query = "SELECT * FROM js_core.GET_USER($1) RESULT";
+    const params = [id];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, this.scheme(res));
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
+  async user(_id, project_id) {
+    const query = "SELECT * FROM js_core.GET_USER($1, $2) RESULT";
+    const params = [_id, project_id];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, res);
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
+  async setProfile(
+    id,
+    caption,
+    description,
+    cellphone,
+    phone,
+    email,
+    country_id,
+    city_id,
+    address,
+    identification_tp,
+    identification,
+    _data
+  ) {
+    if (!caption || caption === "") {
+      return respond(200, {}, 206, MSG0010);
+    } else {
+      const query = "SELECT * FROM js_core.SET_USER($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RESULT";
+      const params = [
+        id,
+        caption,
+        description,
+        cellphone,
+        phone,
+        email,
+        country_id,
+        city_id,
+        address,
+        identification_tp,
+        identification,
+        _data,
+      ];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          const msg = getValue(res, "msg", "");
+          if (msg !== "") {
+            throw msg;
+          } else {
+            this.db.pub(`users/${id}`, res);
+            this.db.pub(`profile/${id}`, res);
+            return respond(200, res);
+          }
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
+  async setPassword(id, password, confirmation) {
+    if (!password || password === "") {
+      return respond(200, {}, 206, MSG0002);
+    } else if (!password || password.length < 8) {
+      return respond(200, {}, 206, MSG0006);
+    } else if (password !== confirmation) {
+      return respond(200, {}, 206, MSG0009);
+    } else {
+      const query = "SELECT * FROM js_core.SET_PASSWORD($1, $2, $3) RESULT";
+      const params = [id, password, confirmation];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          const msg = getValue(res, "msg", "");
+          if (msg !== "") {
+            throw msg;
+          } else {
+            return respond(200, res);
+          }
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
+  async folders(user_id, id) {
+    const query = "SELECT * FROM js_core.GET_USER_FOLDER($1, $2) RESULT";
+    const params = [user_id, id];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, res);
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
+  async valid(username) {
+    if (!username || username === "") {
+      return respond(200, {}, 206, MSG0001);
+    } else {
+      const query = "SELECT * FROM js_core.USER_VALID($1) RESULT";
+      const params = [username];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          let code = result.result;
+          if (validEmail(username)) {
+            this.mailer.sendAlertMail(
+              username,
+              "Verifica tu dirección de correo electrónico",
+              "Código de validación",
+              "Verificación de dirección de correo electrónico",
+              `Usa el siguiente código para verificar que la dirección de correo electrónico <strong>${username}</strong> te pertenece.<h2>Código de validación ${code}</h2><p></p><p>Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.</p>`,
+              "Reportar",
+              "",
+              "Gracias por trabajar con nosotros"
+            );
+            const msg = "Código enviado";
+            return respond(200, { msg });
+          } else if (validCellPhone(username)) {
+            this.aws.sendSMS(username, "Código de validación", `Dploy; Código de validación ${code}`);
+            const msg = "Código enviado";
+            return respond(200, { msg });
+          } else {
+            throw MSG0005;
+          }
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
+  }
+
+  async signup(username, password, confirmation, caption, project, module_id, city_id, code, app) {
+    if (!username || username === "") {
+      return respond(200, {}, 206, MSG0001);
+    } else if (!validEmail(username) && !validCellPhone(username)) {
+      return respond(200, {}, 206, MSG0008);
+    } else if (!password || password === "") {
+      return respond(200, {}, 206, MSG0002);
+    } else if (!password || password.length < 8) {
+      return respond(200, {}, 206, MSG0006);
+    } else if (password !== confirmation) {
+      return respond(200, {}, 206, MSG0009);
+    } else if (!caption || caption === "") {
+      return respond(200, {}, 400, MSG0010);
+    } else if (!project || project === "") {
+      return respond(200, {}, 400, MSG0011);
+    } else if (!module_id || module_id === "-1") {
+      return respond(200, {}, 400, MSG0012);
+    } else if (!city_id || city_id === "-1") {
+      return respond(200, {}, 400, MSG0013);
+    } else if (!code || code === "") {
+      return respond(200, {}, 400, MSG0014);
+    } else if (!app || app === "") {
+      return respond(200, {}, 400, MSG0015);
+    } else {
+      const query = "SELECT * FROM js_core.NEW_USER($1, $2, $3, $4, $5, $6, $7, $8) RESULT";
+      const params = [username, password, confirmation, caption, project, module_id, city_id, code];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          return result.result;
+        })
+        .then((result) => {
+          const msg = getValue(result, "msg", "");
+          if (msg !== "") {
+            throw msg;
+          } else {
+            const userId = getValue(result, "_id", "");
+            return createToken(userId, app).then((result) => {
+              return result;
+            });
+          }
+        })
+        .then((result) => {
+          if (validCellPhone(username)) {
+            this.aws.sendSMS(username, "Inicio de sesión", "Dploy; Acabas de iniciar sesión");
+          }
+          return respond(200, result);
+        })
+        .catch((err) => {
+          if (err === "PASSWORD_NOT_CONFIRM") {
+            return respond(200, { err }, 400, MSG0009);
+          } else if (err === "USER_DELETED") {
+            return respond(200, { err }, 400, MSG0016);
+          } else if (err === "USER_EXIST") {
+            return respond(200, { err }, 400, MSG0017);
+          } else if (err === "CODE_NOT_VALID") {
+            return respond(200, { err }, 400, MSG0018);
+          } else {
+            return respond(200, { err }, 400, MSG0004);
+          }
+        });
+    }
+  }
+
+  async forgot(username, password, confirmation, code, app) {
+    if (!username || username === "") {
+      return respond(200, {}, 206, MSG0001);
+    } else if (!password || password === "") {
+      return respond(200, {}, 206, MSG0002);
+    } else if (!password || password.length < 8) {
+      return respond(200, {}, 206, MSG0006);
+    } else if (password !== confirmation) {
+      return respond(200, {}, 206, MSG0009);
+    } else if (!code || code === "") {
+      return respond(200, {}, 400, MSG0014);
+    } else if (!app || app === "") {
+      return respond(200, {}, 400, MSG0015);
+    } else {
+      const query = "SELECT * FROM js_core.FORGOT_PASSWORD($1, $2, $3, $4) RESULT";
+      const params = [username, password, confirmation, code];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          return result.result;
+        })
+        .then((result) => {
+          const msg = getValue(result, "msg", "");
+          if (msg !== "") {
+            throw msg;
+          } else {
+            const userId = getValue(result, "_id", "");
+            return createToken(userId, app).then((result) => {
+              return result;
+            });
+          }
+        })
+        .then((result) => {
+          if (validEmail(username)) {
+            this.mailer.sendAlertMail(
+              username,
+              "Alerta de seguridad, recuperación de contraseña",
+              "Recuperación de contraseña",
+              "Te damos nuevamente la bienvenida a tu cuenta",
+              `Acabas de recuperar la contraseña de tu cuenta <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
+              "Reportar",
+              "",
+              "Gracias por trabajar con nosotros"
+            );
+          } else if (validCellPhone(username)) {
+            this.aws.sendSMS(username, "Recuperación de contraseña", "Dploy; Acabas de recuperar tu contraseña");
+          }
+          return respond(200, result);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
+  async set(username, caption, project_id, profile_tp, user_id) {
+    if (!username || username === "") {
+      return respond(200, {}, 206, MSG0001);
+    } else if (!caption || caption === "") {
+      return respond(200, {}, 206, MSG0010);
+    } else {
+      const query = "SELECT * FROM js_core.SET_USER($1, $2, $3, $4, $5) RESULT";
+      const params = [username, caption, project_id, profile_tp, user_id];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          const msg = getValue(res, "msg", "");
+          if (msg !== "") {
+            throw msg;
+          } else {
+            if (validEmail(username)) {
+              const profile = getValue(res, "profile", "");
+              const project = getValue(res, "project", "");
+              this.mailer.sendAlertMail(
+                username,
+                "Alerta de seguridad, asignación de perfil",
+                "Asignación de perfil",
+                "Te damos la bienvenida",
+                `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
+                "Reportar",
+                "",
+                "Gracias por trabajar con nosotros"
+              );
+            } else if (validCellPhone(username)) {
+              this.aws.sendSMS(username, "Asignación de perfil", "Dploy; Asignación de perfil");
+            }
+            this.db.pub(`users/${project_id}`, res);
+            return respond(200, res);
+          }
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
+  async finish(user_id, project_id) {
+    const query = "SELECT * FROM js_core.CHK_PROJECT_USER($1, $2, $3, $4) RESULT";
+    const params = [project_id, user_id, "ALL", false];
+    return await this.db
+      .post(query, params)
+      .then((result) => {
+        const res = result.result;
+        this.db.pub(`users/${project_id}`, { _id: user_id, _state: "2" });
+        return respond(200, { res });
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0003);
+      });
+  }
+
+  async auto(search) {
+    if (!search || search.length < 2) {
+      return respond(200, {});
+    } else {
+      const query = "SELECT * FROM js_core.AUTO_USERS($1, $2) RESULT";
+      const params = [search, 15];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
+  async delete(session) {
+    const _id = userId(session);
+    if (_id === "") {
+      return respond(400, {}, 400, "Usuario invalido");
+    } else {
+      const query = "SELECT * FROM js_core.TRASH_USERS($1) RESULT";
+      const params = [_id];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          const msg = getValue(res, "msg", "-1");
+          if (msg === "-2") {
+            this.db.pub(`tokens/${session}`, {});
+            return respond(200, { _id, _state: msg });
+          } else {
+            return respond(400, {}, 400, msg);
+          }
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
+  }
+}
+
+module.exports = Model;

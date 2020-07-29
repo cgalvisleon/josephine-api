@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dploy</title>
+    <style></style>
+  </head>
+  <body>
+    <h1>JosephinQl V1.0.0</h1>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io({
+      forceNew: true,
+    });
+
+    socket.on('project/123', function (msg) {
+      console.log(msg);
+    });
+  </script>
+</html>
