@@ -4,7 +4,7 @@ const response = require("../lib/response");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/josephinQL", router);
+  app.use("/jQL", router);
 
   const service = new Service();
 
