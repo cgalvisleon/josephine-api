@@ -9,20 +9,25 @@ class Model {
   }
 
   async list(project_id, _class, single) {
-    project_id = project_id || "-1";
+    project_id = project_id || "";
     _class = _class || "-1";
     single = single || false;
-    const query = "SELECT * FROM js_core.GET_CLASS_PRINTS($1, $2, $3) RESULT";
-    const params = [project_id, _class, single];
-    return await this.db
-      .get(query, params)
-      .then(result => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch(err => {
-        return respond(200, { err }, 400, MSG0004);
-      });
+    console.log(project_id);
+    if (project_id === "") {
+      return respond(200, {}, 400, "Projecto requerido - /prints/<project_id>");
+    } else {
+      const query = "SELECT * FROM js_core.GET_CLASS_PRINTS($1, $2, $3) RESULT";
+      const params = [project_id, _class, single];
+      return await this.db
+        .get(query, params)
+        .then((result) => {
+          const res = result.result;
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
   }
 }
 
