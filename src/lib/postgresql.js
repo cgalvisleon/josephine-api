@@ -24,35 +24,35 @@ const DB_READ_PORT = config.pgReadPort;
 
 class PgLib {
   constructor() {
-    this.log = new LogLib("dploy", "postgresql");
+    this.log = new LogLib(config.project, "postgresql");
     this.type = "Postgresql";
     this.db = new Client({
       user: USER,
       host: DB_HOST,
       database: DB_NAME,
       password: PASSWORD,
-      port: DB_PORT
+      port: DB_PORT,
     });
     this.dbMaster = new Client({
       user: USER_MASTER,
       host: DB_MASTER_HOST,
       database: DB_MASTER_NAME,
       password: PASSWORD_MASTER,
-      port: DB_MASTER_PORT
+      port: DB_MASTER_PORT,
     });
     this.dbRead = new Client({
       user: USER_READ,
       host: DB_READ_HOST,
       database: DB_READ_NAME,
       password: PASSWORD_READ,
-      port: DB_READ_PORT
+      port: DB_READ_PORT,
     });
   }
 
   connect() {
     if (!PgLib.connection) {
       PgLib.connection = new Promise((resolve, reject) => {
-        this.db.connect(err => {
+        this.db.connect((err) => {
           if (err) {
             this.log.error(err);
             reject(err);
@@ -68,7 +68,7 @@ class PgLib {
   connectMaster() {
     if (!PgLib.master) {
       PgLib.master = new Promise((resolve, reject) => {
-        this.dbMaster.connect(err => {
+        this.dbMaster.connect((err) => {
           if (err) {
             this.log.error(err);
             reject(err);
@@ -84,7 +84,7 @@ class PgLib {
   connectRead() {
     if (!PgLib.connectionRead) {
       PgLib.connectionRead = new Promise((resolve, reject) => {
-        this.dbRead.connect(err => {
+        this.dbRead.connect((err) => {
           if (err) {
             this.log.error(err);
             reject(err);
@@ -100,7 +100,7 @@ class PgLib {
 
   listen(db) {
     db.query("LISTEN set");
-    db.on("notification", msg => {
+    db.on("notification", (msg) => {
       const res = JSON.parse(msg.payload);
       const type = res.type || "";
       const project_id = res.project_id || "-1";
@@ -115,10 +115,10 @@ class PgLib {
     const db = await this.connectRead();
     return await db
       .query(query, params)
-      .then(res => {
+      .then((res) => {
         return res.rows[0];
       })
-      .catch(err => {
+      .catch((err) => {
         this.log.error(err);
         throw err;
       });
@@ -128,10 +128,10 @@ class PgLib {
     const db = await this.connect();
     return await db
       .query(query, params)
-      .then(res => {
+      .then((res) => {
         return res.rows[0];
       })
-      .catch(err => {
+      .catch((err) => {
         this.log.error(err);
         throw err;
       });
@@ -145,12 +145,12 @@ class PgLib {
     const query = "SELECT * FROM js_core.GET_SUMMARY_STATE($1, $2, $3) RESULT";
     const params = [project_id, _class, _state];
     return this.get(query, params)
-      .then(result => {
+      .then((result) => {
         const count = result.result;
         this.pub(`counts/${project_id}`, { project_id, _class, _state, count });
         return count;
       })
-      .catch(err => {
+      .catch((err) => {
         this.log("error", err);
         throw err;
       });

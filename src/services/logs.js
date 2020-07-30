@@ -1,21 +1,21 @@
-const Model = require('../models/logs');
+const Model = require("../models/logs");
 
 class Service {
   constructor() {}
 
-  async get({ id }) {
+  async get({ collection, id }) {
     const model = new Model({});
-    return await model.get(id);
+    return await model.get(collection, id);
   }
 
-  async delete({ id }) {
+  async delete({ collection, id }) {
     const model = new Model({});
-    return await model.delete(id);
+    return await model.delete(collection, id);
   }
 
-  async logs({ search, rows, page } = {}) {
+  async logs({ collection, search, rows, page } = {}) {
     const model = new Model({});
-    return await model.logs(search, rows, page, { date: -1 });
+    return await model.logs(collection, search, rows, page, { date: -1 });
   }
 }
 

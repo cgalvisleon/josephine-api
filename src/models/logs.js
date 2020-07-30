@@ -7,34 +7,34 @@ class Model {
     this.log = new LogLib("dploy", "postgresql");
   }
 
-  async get(id) {
+  async get(collection, id) {
     return await this.log
-      .get(id)
-      .then(result => {
+      .get(collection, id)
+      .then((result) => {
         const res = result;
         return respond(200, res);
       })
-      .catch(err => {
+      .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
       });
   }
 
-  async delete(id) {
+  async delete(collection, id) {
     return await this.log
-      .delete(id)
-      .then(result => {
+      .delete(collection, id)
+      .then((result) => {
         const res = result;
         return respond(200, res);
       })
-      .catch(err => {
+      .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
       });
   }
 
-  async logs(search, rows, page, sort) {
+  async logs(collection, search, rows, page, sort) {
     return await this.log
-      .logs(search, rows, page, sort)
-      .then(result => {
+      .logs(collection, search, rows, page, sort)
+      .then((result) => {
         const res = {
           int: result.length === 0 ? 0 : 1,
           end: result.length,
@@ -43,11 +43,11 @@ class Model {
           rows: rows,
           count: result.length,
           all: result.length,
-          search: ""
+          search: "",
         };
         return respond(200, res);
       })
-      .catch(err => {
+      .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
       });
   }

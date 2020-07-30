@@ -16,10 +16,10 @@ class LogLib {
       app: this.app,
       context: this.context,
       date: now,
-      content: content
+      content: content,
     };
     const _id = db.insert("debug", log);
-    db.pub("logs", log);
+    db.pub("log", log);
     return _id;
   }
 
@@ -31,43 +31,50 @@ class LogLib {
       app: this.app,
       context: this.context,
       date: now,
-      content: content
+      content: content,
     };
     const _id = db.insert("debug", log);
-    db.pub("logs", log);
+    db.pub("error", log);
     return _id;
   }
 
-  async get(id) {
+  monitor(params) {
+    const _id = db.insert("monitor", params);
+    db.pub("monitor", params);
+    return _id;
+  }
+
+  async get(collection, id) {
     return await db
-      .select("debug", { _id: id })
-      .then(result => {
+      .select(collection, { _id: id })
+      .then((result) => {
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }
 
-  async logs(query, rows, offset, sort) {
+  async logs(collection, query, rows, offset, sort) {
     return await db
-      .select("debug", query, rows, offset, sort)
-      .then(result => {
+      .select(collection, query, rows, offset, sort)
+      .then((result) => {
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }
 
-  async delete(id) {
+  async delete(collection, id) {
     return await db
-      .delete("debug", { _id: id })
-      .then(result => {
-        db.pub("logs", { _id: id, _state: "-2" });
+      .delete(collection, { _id: id })
+      .then((result) => {
+        const theme = collection === "monitor" ? monitor : "log";
+        db.pub(theme, { _id: id, _state: "-2" });
         return result;
       })
-      .catch(error => {
+      .catch((error) => {
         throw error;
       });
   }

@@ -3,6 +3,7 @@ const app = express();
 const server = require("http").Server(app);
 const { config } = require("./src/config/index");
 const cors = require("./src/middleware/cors");
+const monitor = require("./src/middleware/monitor");
 const { logErrors, wrapErrors, errorHandler } = require("./src/middleware/errorHandlers");
 const notFoundHandler = require("./src/middleware/notFoundHandler");
 const { SocketIO } = require("./src/lib/socket");
@@ -19,6 +20,9 @@ app.use(express.json({ limit: "50mb" }));
 
 // Cors
 app.use(cors);
+
+// Monitor
+app.use(monitor);
 
 // Public
 app.use("/app", express.static("public"));
