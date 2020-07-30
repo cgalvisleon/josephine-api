@@ -5,4 +5,5 @@ git config --global alias.backup "! git add .; git commit -m 'Backup'; git push 
 git config --global alias.review "! git add .; git commit -m 'Review'; git push -u origin $1"
 git config --global alias.merge "! git add .; git commit -m 'Merge'; git push -u origin $1"
 git config --global alias.deploy "! git add .; git commit -m 'Deploy'; git push -u origin $1"
+git config --global alias.fix "! git add .; git commit -m 'Fixing'; git push -u origin $1"
 git config --global alias.bring "! git pull origin $1"
