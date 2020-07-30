@@ -4,11 +4,11 @@ const response = require("../lib/response");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/api", router);
+  app.use("/prints", router);
 
   const service = new Service();
 
-  router.get("/prints/:project_id", async function(req, res, next) {
+  router.get("/:project_id", async function (req, res, next) {
     const { project_id } = req.params;
     const { _class } = req.query;
     const { single } = req.query;
