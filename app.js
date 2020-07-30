@@ -15,6 +15,7 @@ const josephinQL = require("./src/routes/josephineQL");
 const logsApi = require("./src/routes/logs");
 const monitorApi = require("./src/routes/monitor");
 const printsApi = require("./src/routes/prints");
+const projectsApi = require("./src/routes/projects");
 
 // Body parser limit
 app.use(express.json({ limit: "50mb" }));
@@ -38,6 +39,7 @@ josephinQL(app);
 logsApi(app);
 monitorApi(app);
 printsApi(app);
+projectsApi(app);
 
 // Catch 404
 app.use(notFoundHandler);

@@ -11,6 +11,7 @@ function monitor(req, res, next) {
   const use = free / total;
   const status = {
     date: new Date(),
+    project: config.project,
     _id: _id,
     ip_address: os.networkInterfaces().en0.map((i) => i.address),
     cpu: os.cpus(),

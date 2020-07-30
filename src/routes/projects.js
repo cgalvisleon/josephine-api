@@ -1,11 +1,11 @@
 const express = require("express");
 const Service = require("../services/projects");
 const response = require("../lib/response");
-const isAuth = require("../middleware/auth");
+//const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/prints", isAuth);
+  //app.use("/projects", isAuth);
   app.use("/projects", router);
 
   const service = new Service();
