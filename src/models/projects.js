@@ -3,7 +3,7 @@ const XlsLib = require("../lib/xls");
 const PdfMake = require("../lib/pdfmake");
 const { getValue, respond, genId } = require("../lib/utilities");
 const { MSG0004 } = require("../lib/msg");
-const pdfUsers = require("../assets/pdf/pdfUsers");
+const pdfUsers = require("../exports/pdf/pdfUsers");
 
 class Model {
   constructor(params) {
