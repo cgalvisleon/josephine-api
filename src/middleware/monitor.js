@@ -5,15 +5,21 @@ const LogLib = require("../lib/logs");
 const log = new LogLib(config.project, "monitor");
 
 function monitor(req, res, next) {
+  const _id = genId("-1");
+  const free = os.freemem();
+  const total = os.totalmem();
+  const use = free / total;
   const status = {
-    date_of: new Date(),
-    _id: genId("-1"),
+    date: new Date(),
+    _id: _id,
     ip_address: os.networkInterfaces().en0.map((i) => i.address),
     cpu: os.cpus(),
-    free_memory: os.freemem(),
-    total_memory: os.totalmem(),
+    free_memory: free,
+    total_memory: total,
+    use: use,
   };
   log.monitor(status);
+  res.header("Monitor-id", _id);
   next();
 }
 

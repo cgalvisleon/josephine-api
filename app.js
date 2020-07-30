@@ -13,6 +13,7 @@ const webhookApi = require("./src/routes/webhook");
 // Definitions
 const josephinQL = require("./src/routes/josephineQL");
 const logsApi = require("./src/routes/logs");
+const monitorApi = require("./src/routes/monitor");
 const printsApi = require("./src/routes/prints");
 
 // Body parser limit
@@ -35,6 +36,7 @@ api(app);
 webhookApi(app);
 josephinQL(app);
 logsApi(app);
+monitorApi(app);
 printsApi(app);
 
 // Catch 404
