@@ -1,14 +1,16 @@
 const express = require("express");
 const Service = require("../services/projects");
 const response = require("../lib/response");
+const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/api/projects", router);
+  app.use("/prints", isAuth);
+  app.use("/projects", router);
 
   const service = new Service();
 
-  router.get("/:id", async function(req, res, next) {
+  router.get("/:id", async function (req, res, next) {
     const { id } = req.params;
     try {
       const results = await service.get({ id });
@@ -20,7 +22,7 @@ function Api(app) {
     }
   });
 
-  router.post("/:id", async function(req, res, next) {
+  router.post("/:id", async function (req, res, next) {
     const { id } = req.params;
     const { body: params } = req;
     try {
@@ -33,7 +35,7 @@ function Api(app) {
     }
   });
 
-  router.patch("/:id", async function(req, res, next) {
+  router.patch("/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.body;
     try {
@@ -46,7 +48,7 @@ function Api(app) {
     }
   });
 
-  router.get("/types/:id", async function(req, res, next) {
+  router.get("/types/:id", async function (req, res, next) {
     const { id } = req.params;
     const { _class } = req.query;
     const { state } = req.query;
@@ -60,7 +62,7 @@ function Api(app) {
         state,
         search,
         page,
-        rows
+        rows,
       });
       const status = results.status;
       req = results.results;
@@ -70,7 +72,7 @@ function Api(app) {
     }
   });
 
-  router.get("/users/:id", async function(req, res, next) {
+  router.get("/users/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.query;
     const { search } = req.query;
@@ -86,7 +88,7 @@ function Api(app) {
     }
   });
 
-  router.get("/contacts/:id", async function(req, res, next) {
+  router.get("/contacts/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.query;
     const { search } = req.query;
@@ -102,7 +104,7 @@ function Api(app) {
     }
   });
 
-  router.get("/warehouses/:id", async function(req, res, next) {
+  router.get("/warehouses/:id", async function (req, res, next) {
     const { id } = req.params;
     try {
       const results = await service.warehouse({ id });
@@ -114,7 +116,7 @@ function Api(app) {
     }
   });
 
-  router.get("/cellars/:id", async function(req, res, next) {
+  router.get("/cellars/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.query;
     const { search } = req.query;
@@ -130,7 +132,7 @@ function Api(app) {
     }
   });
 
-  router.get("/references/:id", async function(req, res, next) {
+  router.get("/references/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.query;
     const { search } = req.query;
@@ -142,7 +144,7 @@ function Api(app) {
         state,
         search,
         page,
-        rows
+        rows,
       });
       const status = results.status;
       req = results.results;
@@ -152,7 +154,7 @@ function Api(app) {
     }
   });
 
-  router.get("/typeReferences/:id", async function(req, res, next) {
+  router.get("/typeReferences/:id", async function (req, res, next) {
     const { id } = req.params;
     const { _class } = req.query;
     const { state } = req.query;
@@ -166,7 +168,7 @@ function Api(app) {
         state,
         search,
         page,
-        rows
+        rows,
       });
       const status = results.status;
       req = results.results;
@@ -176,7 +178,7 @@ function Api(app) {
     }
   });
 
-  router.get("/documents/:id", async function(req, res, next) {
+  router.get("/documents/:id", async function (req, res, next) {
     const { id } = req.params;
     const { _class } = req.query;
     const { state } = req.query;
@@ -190,7 +192,7 @@ function Api(app) {
         state,
         search,
         page,
-        rows
+        rows,
       });
       const status = results.status;
       req = results.results;
@@ -200,7 +202,7 @@ function Api(app) {
     }
   });
 
-  router.get("/document/:id", async function(req, res, next) {
+  router.get("/document/:id", async function (req, res, next) {
     const { id } = req.params;
     const { _class } = req.query;
     try {
@@ -213,7 +215,7 @@ function Api(app) {
     }
   });
 
-  router.get("/kardex/:cellar_id", async function(req, res, next) {
+  router.get("/kardex/:cellar_id", async function (req, res, next) {
     const { cellar_id } = req.params;
     const { search } = req.query;
     const { page } = req.query;
@@ -228,7 +230,7 @@ function Api(app) {
     }
   });
 
-  router.get("/stocks/:cellar_id", async function(req, res, next) {
+  router.get("/stocks/:cellar_id", async function (req, res, next) {
     const { cellar_id } = req.params;
     const { search } = req.query;
     const { page } = req.query;
@@ -243,7 +245,7 @@ function Api(app) {
     }
   });
 
-  router.get("/cellars/xls/:id", async function(req, res, next) {
+  router.get("/cellars/xls/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.query;
     const { search } = req.query;
@@ -259,7 +261,7 @@ function Api(app) {
         page,
         rows,
         to,
-        username
+        username,
       });
       const status = results.status;
       req = results.results;
@@ -269,14 +271,14 @@ function Api(app) {
     }
   });
 
-  router.get("/pdf/users/:id", async function(req, res, next) {
+  router.get("/pdf/users/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.query;
     const { search } = req.query;
     const { page } = req.query;
     const { rows } = req.query;
     try {
-      await service.pdfUsers({ id, state, search, page, rows }, function(binary) {
+      await service.pdfUsers({ id, state, search, page, rows }, function (binary) {
         res.setHeader("Content-type", "application/pdf");
         res.send(binary);
       });
