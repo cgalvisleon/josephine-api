@@ -1,7 +1,7 @@
-const Excel = require('excel4node');
-const AwsLib = require('./aws');
-const { socket } = require('./socket');
-const Mailer = require('../models/mailer');
+const Excel = require("excel4node");
+const AwsLib = require("./aws");
+const { socket } = require("./socket");
+const Mailer = require("../models/mailer");
 
 class XlsLib {
   constructor(params) {
@@ -10,9 +10,9 @@ class XlsLib {
     this.params = params;
     this.wb = new Excel.Workbook({
       jszip: {
-        compression: 'DEFLATE',
+        compression: "DEFLATE",
       },
-      dateFormat: 'd/m/yyyy hh:mm:ss',
+      dateFormat: "d/m/yyyy hh:mm:ss",
     });
     this.title = this.wb.createStyle({
       font: {
@@ -20,19 +20,19 @@ class XlsLib {
       },
       alignment: {
         wrapText: false,
-        horizontal: 'center',
+        horizontal: "center",
       },
     });
     this.text = this.wb.createStyle({
       alignment: {
         wrapText: false,
-        horizontal: 'left',
+        horizontal: "left",
       },
     });
     this.number = this.wb.createStyle({
       alignment: {
         wrapText: false,
-        horizontal: 'right',
+        horizontal: "right",
       },
     });
   }
@@ -42,7 +42,7 @@ class XlsLib {
   }
 
   async setData(sheetName, data) {
-    sheetName = sheetName || 'Tabla';
+    sheetName = sheetName || "Tabla";
     data = data || [];
     let sheet = this.addWorkSheet(sheetName);
     let r = 1;
@@ -70,17 +70,22 @@ class XlsLib {
   }
 
   saveFile(project_id, name, to, user_id) {
-    return this.wb.writeToBuffer().then(buff => {
-      let base64 = buff.toString('base64');
-      this.aws
-        .uploadBase64(base64, `${project_id}/export/xlsx`, name, '.xlsx')
-        .then(result => {
-          const location = result.Location;
-          socket.io.emit(`/export/xlsx/${user_id}`, { location });
-          socket.io.emit(`/export/xlsx/${project_id}`, { location });
-          this.mailer.sendMail(to, 'Archivo exportado', location, location);
-          return { location };
-        });
+    return this.wb.writeToBuffer().then((buff) => {
+      let base64 = buff.toString("base64");
+      this.aws.uploadBase64(base64, `${project_id}/export/xlsx`, name, ".xlsx").then((result) => {
+        const location = result.Location;
+        socket.io.emit(`/export/xls/${user_id}`, { location });
+        socket.io.emit(`/export/xls/${project_id}`, { location });
+        this.mailer.sendActionMail(
+          to,
+          "Archivo exportado",
+          "Exportación a excel",
+          "El sistema ha terminado el proceso de exportación a excel de los datos colicitados.",
+          "Descargar",
+          location
+        );
+        return { location };
+      });
     });
   }
 }
