@@ -20,7 +20,7 @@ function decode(token) {
   }
 }
 
-async function createToken(userId, app) {
+async function getSession(userId, app) {
   const now = new Date();
   let payload = {
     sub: userId,
@@ -37,6 +37,21 @@ async function createToken(userId, app) {
       const res = { token, session };
       db.pub(`tokens/${session}`, res);
       return res;
+    })
+    .catch(() => {
+      return {};
+    });
+}
+
+async function getToken(id, app) {
+  const now = new Date();
+  const token = getUnixTime(now);
+  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3, $4) RESULT";
+  const params = [id, app, token.toString(), token.toString()];
+  return await db
+    .post(query, params)
+    .then(() => {
+      return { token };
     })
     .catch(() => {
       return {};
@@ -80,7 +95,7 @@ async function useToken(token) {
   return await db
     .get(query, params)
     .then((result) => {
-      return result;
+      return result.result;
     })
     .catch(() => {
       return "-1";
@@ -90,7 +105,8 @@ async function useToken(token) {
 module.exports = {
   encode,
   decode,
-  createToken,
+  getSession,
+  getToken,
   verify,
   userId,
   useToken,

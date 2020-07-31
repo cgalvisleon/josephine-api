@@ -20,7 +20,7 @@ const {
   MSG0017,
   MSG0018,
 } = require("../lib/msg");
-const { createToken, useToken, userId } = require("./auth");
+const { getSession, getToken, useToken, userId } = require("./auth");
 const Mailer = require("./mailer");
 const AWS = require("./aws");
 const pdfUsers = require("../exports/pdf/pdfUsers");
@@ -84,7 +84,7 @@ class Model {
             throw msg;
           } else {
             const userId = getValue(result, "_id", "");
-            return createToken(userId, app).then((result) => {
+            return getSession(userId, app).then((result) => {
               return result;
             });
           }
@@ -347,7 +347,7 @@ class Model {
             throw msg;
           } else {
             const userId = getValue(result, "_id", "");
-            return createToken(userId, app).then((result) => {
+            return getSession(userId, app).then((result) => {
               return result;
             });
           }
@@ -406,7 +406,7 @@ class Model {
             throw msg;
           } else {
             const userId = getValue(result, "_id", "");
-            return createToken(userId, app).then((result) => {
+            return getSession(userId, app).then((result) => {
               return result;
             });
           }
@@ -504,34 +504,18 @@ class Model {
     }
   }
 
-  async createToken(userId, app) {
-    userId = userId || "-1";
+  async getToken(id, app) {
+    id = id || "-1";
     app = app || "";
-    if (userId === "-1") {
-      return respond(200, {}, 400, "Usuario requerido");
+    if (id === "-1") {
+      return respond(200, {}, 400, "Id requerido");
     } else if (app === "") {
       return respond(200, {}, 400, "Aplicación requerida");
     } else {
-      return await createToken(userId, app)
+      return await getToken(id, app)
         .then((result) => {
-          const res = result;
-          return respond(200, res);
-        })
-        .catch((err) => {
-          return respond(200, { err }, 400, MSG0004);
-        });
-    }
-  }
-
-  async useToken(token) {
-    token = token || "";
-    if (token === "-1") {
-      return respond(200, {}, 400, "Token requerido");
-    } else {
-      return await useToken(token)
-        .then((result) => {
-          const res = result.result;
-          return respond(200, { user_id: res });
+          const res = result.token;
+          return respond(200, { token: res });
         })
         .catch((err) => {
           return respond(200, { err }, 400, MSG0004);
@@ -603,18 +587,15 @@ class Model {
       });
   }
 
-  async pdfUsers({ id, state, search, page, rows }, callback) {
-    id = id || "-1";
+  async pdfUsers({ state, token }, callback) {
     state = state || "0";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 1000;
     try {
-      const project = await this.project.getData(id).then((result) => {
+      const project_id = await useToken(token);
+      const project = await this.project.getData(project_id).then((result) => {
         return result;
       });
       const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
-      const params = [id, state, search, page, rows];
+      const params = [project_id, state, "", 1, 1000];
       const details = await this.db.get(query, params).then((result) => {
         return result.result;
       });

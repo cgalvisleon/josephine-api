@@ -84,14 +84,9 @@ class Service {
     return await model.finish(user_id, project_id);
   }
 
-  async createToken(user_id, app) {
+  async getToken(id, app) {
     const model = new Model({});
-    return await model.createToken(user_id, app);
-  }
-
-  async useToken(token) {
-    const model = new Model({});
-    return await model.useToken(token);
+    return await model.getToken(id, app);
   }
 
   async auto(search) {
@@ -109,9 +104,9 @@ class Service {
     return await model.list(id, state, search, page, rows);
   }
 
-  async pdfUsers({ id, state, search, page, rows }, callback) {
+  async pdfUsers({ state, token }, callback) {
     const model = new Model({});
-    return await model.pdfUsers({ id, state, search, page, rows }, callback);
+    return await model.pdfUsers({ state, token }, callback);
   }
 }
 

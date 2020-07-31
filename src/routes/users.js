@@ -97,21 +97,9 @@ function Api(app) {
 
   router.get("/token/:app", async function (req, res, next) {
     const { app } = req.params;
-    const { user_id } = req.body;
+    const { id } = req.query;
     try {
-      const results = await service.createToken(user_id, app);
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.patch("/token/:token", async function (req, res, next) {
-    const { token } = req.params;
-    try {
-      const results = await service.useToken(token);
+      const results = await service.getToken(id, app);
       const status = results.status;
       req = results.results;
       response.success(req, res, status);

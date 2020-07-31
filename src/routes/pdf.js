@@ -5,15 +5,12 @@ function Api(app) {
   const router = express.Router();
   app.use("/pdf", router);
 
-  router.get("/users/:id", async function (req, res, next) {
-    const { id } = req.params;
+  router.get("/users/:token", async function (req, res, next) {
+    const { token } = req.params;
     const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
     try {
       const service = new Users();
-      await service.pdfUsers({ id, state, search, page, rows }, function (binary) {
+      await service.pdfUsers({ state, token }, function (binary) {
         res.setHeader("Content-type", "application/pdf");
         res.send(binary);
       });
