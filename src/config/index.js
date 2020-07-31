@@ -12,6 +12,7 @@ const config = {
   url: process.env.URL,
   urlIssues: process.env.URLISSUES,
   /** Email Suport */
+  serviceEmail: process.env.SERVICE_EMAIL,
   email: process.env.EMAIL,
   emailPassword: process.env.EMAIL_PASSWORD,
   emailHost: process.env.EMAIL_HOST,

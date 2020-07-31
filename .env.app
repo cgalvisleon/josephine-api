@@ -8,6 +8,7 @@ URL=
 URLISSUES=
 
 //EMAIL
+SERVICE_EMAIL=servicios@igestion.co
 EMAIL=servicios@igestion.co
 EMAIL_PASSWORD=Enterprice1701
 EMAIL_HOST=mateo.colombiahosting.com.co

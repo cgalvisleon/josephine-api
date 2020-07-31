@@ -29,6 +29,7 @@ const Project = require("./projects");
 const urlIssues = config.urlIssues;
 const url = config.url;
 const project = config.project;
+const serviceEmail = config.serviceEmail;
 
 class Model {
   constructor(params) {
@@ -102,7 +103,7 @@ class Model {
               "Te damos nuevamente la bienvenida a tu cuenta",
               `Acabas de iniciar sesión con tu cuenta <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
               "Reportar",
-              `${urlIssues}/${username}`,
+              `${urlIssues}`,
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
@@ -286,7 +287,7 @@ class Model {
               "Verificación de dirección de correo electrónico",
               `Usa el siguiente código para verificar que la dirección de correo electrónico <strong>${username}</strong> te pertenece.<h2>Código de validación ${code}</h2><p></p><p>Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.</p>`,
               "Reportar",
-              `${urlIssues}/${username}`,
+              `${urlIssues}`,
               "Gracias por trabajar con nosotros"
             );
             const msg = "Código enviado";
@@ -424,7 +425,7 @@ class Model {
               "Te damos nuevamente la bienvenida a tu cuenta",
               `Acabas de recuperar la contraseña de tu cuenta <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
               "Reportar",
-              `${urlIssues}/${username}`,
+              `${urlIssues}`,
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
@@ -469,7 +470,7 @@ class Model {
                   "Bienvenido, asignación de perfil",
                   "Asignación de perfil",
                   "Te damos la bienvenida",
-                  `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>, con el usuario <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, <a href=${urlIssues}/${username}>reportanos</a> la inconcistencia.`,
+                  `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>, con el usuario <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, <a href=${urlIssues}>reportanos</a> la inconcistencia.`,
                   "Iniciar sesión",
                   `${url}/seek`,
                   "Gracias por trabajar con nosotros"
@@ -480,7 +481,7 @@ class Model {
                   "Bienvenido, asignación de perfil",
                   "Asignación de perfil",
                   "Te damos la bienvenida",
-                  `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>, con el usuario <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, <a href=${urlIssues}/${username}>reportanos</a> la inconcistencia.`,
+                  `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>, con el usuario <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, <a href=${urlIssues}>reportanos</a> la inconcistencia.`,
                   "Iniciar sesión",
                   `${url}/signin`,
                   "Gracias por trabajar con nosotros"
@@ -567,6 +568,25 @@ class Model {
           return respond(200, { err }, 400, MSG0003);
         });
     }
+  }
+
+  async issues(username, access, use) {
+    username = username || "";
+    access = access || false;
+    use = use || false;
+    this.mailer.sendAlertMail(
+      serviceEmail,
+      "Reporte de acceso indebido",
+      "Solicitud de revisión",
+      `El usuario ${username}`,
+      `Acabas de reportar una solicitud de revisión de uso indebido: <p>${
+        Boolean(access) ? "<strong>Reporta acceso indebido</strong>" : ""
+      }</p><p>${Boolean(use) ? "<strong>Reporta uso indebido de tus datos</strong>" : ""}</p>`,
+      `Iniciar sesión`,
+      `${url}/signin`,
+      "<strong>Atención prioritaria</strong>"
+    );
+    return respond(200, {});
   }
 
   async delete(session) {

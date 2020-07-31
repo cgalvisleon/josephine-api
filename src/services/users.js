@@ -94,6 +94,11 @@ class Service {
     return await model.auto(search);
   }
 
+  async issues({ username, access, use } = {}) {
+    const model = new Model({});
+    return await model.issues(username, access, use);
+  }
+
   async delete({ session } = {}) {
     const model = new Model({});
     return await model.delete(session);

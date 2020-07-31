@@ -152,6 +152,20 @@ function Api(app) {
       next(err);
     }
   });
+
+  router.post("/issues", async function (req, res, next) {
+    const { username } = req.body;
+    const { access } = req.body;
+    const { use } = req.body;
+    try {
+      const results = await users.issues({ username, access, use });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
 }
 
 module.exports = Api;
