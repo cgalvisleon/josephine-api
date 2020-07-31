@@ -12,7 +12,6 @@ function Api(app) {
 
   router.get("/", async function (req, res, next) {
     const { user_id } = req.body;
-    console.log(req.body);
     try {
       const results = await service.profile({ id: user_id });
       const status = results.status;
