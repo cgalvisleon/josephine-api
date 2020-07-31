@@ -8,6 +8,8 @@ const config = {
   port: process.env.PORT || 3030,
   cors: process.env.CORS,
   secret: process.env.SECRET,
+  url: process.env.URL,
+  urlIssues: process.env.URLISSUES,
   /** Email Suport */
   email: process.env.EMAIL,
   emailPassword: process.env.EMAIL_PASSWORD,

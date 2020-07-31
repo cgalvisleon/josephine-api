@@ -23,8 +23,12 @@ const {
 const { getSession, getSecret, secret, cleanSecret, userId } = require("./auth");
 const Mailer = require("./mailer");
 const AWS = require("./aws");
+const { config } = require("../config/index");
 const pdfUsers = require("../exports/pdf/pdfUsers");
 const Project = require("./projects");
+const urlIssues = config.urlIssues;
+const url = config.url;
+const project = config.project;
 
 class Model {
   constructor(params) {
@@ -98,7 +102,7 @@ class Model {
               "Te damos nuevamente la bienvenida a tu cuenta",
               `Acabas de iniciar sesión con tu cuenta <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
               "Reportar",
-              "",
+              `${urlIssues}/${username}`,
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
@@ -282,7 +286,7 @@ class Model {
               "Verificación de dirección de correo electrónico",
               `Usa el siguiente código para verificar que la dirección de correo electrónico <strong>${username}</strong> te pertenece.<h2>Código de validación ${code}</h2><p></p><p>Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.</p>`,
               "Reportar",
-              "",
+              `${urlIssues}/${username}`,
               "Gracias por trabajar con nosotros"
             );
             const msg = "Código enviado";
@@ -420,7 +424,7 @@ class Model {
               "Te damos nuevamente la bienvenida a tu cuenta",
               `Acabas de recuperar la contraseña de tu cuenta <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
               "Reportar",
-              "",
+              `${urlIssues}/${username}`,
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
@@ -455,21 +459,47 @@ class Model {
           if (msg !== "") {
             throw msg;
           } else {
+            const isNew = getValue(res, "isNew", false);
             if (validEmail(username)) {
               const profile = getValue(res, "profile", "");
               const project = getValue(res, "project", "");
-              this.mailer.sendAlertMail(
-                username,
-                "Alerta de seguridad, asignación de perfil",
-                "Asignación de perfil",
-                "Te damos la bienvenida",
-                `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>. Si crees que otra persona accedio sin permiso, reportanos la inconcistencia.`,
-                "Reportar",
-                "",
-                "Gracias por trabajar con nosotros"
-              );
+              if (isNew) {
+                this.mailer.sendAlertMail(
+                  username,
+                  "Bienvenido, asignación de perfil",
+                  "Asignación de perfil",
+                  "Te damos la bienvenida",
+                  `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>, con el usuario <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, <a href=${urlIssues}/${username}>reportanos</a> la inconcistencia.`,
+                  "Iniciar sesión",
+                  `${url}/seek`,
+                  "Gracias por trabajar con nosotros"
+                );
+              } else {
+                this.mailer.sendAlertMail(
+                  username,
+                  "Bienvenido, asignación de perfil",
+                  "Asignación de perfil",
+                  "Te damos la bienvenida",
+                  `Acabas de ser asignado como <strong>${profile}</strong> para el proyecto <strong>${project}</strong>, con el usuario <strong>${username}</strong>. Si crees que otra persona accedio sin permiso, <a href=${urlIssues}/${username}>reportanos</a> la inconcistencia.`,
+                  "Iniciar sesión",
+                  `${url}/signin`,
+                  "Gracias por trabajar con nosotros"
+                );
+              }
             } else if (validCellPhone(username)) {
-              this.aws.sendSMS(username, "Asignación de perfil", "Dploy; Asignación de perfil");
+              if (isNew) {
+                this.aws.sendSMS(
+                  username,
+                  `Asignación de perfil`,
+                  `${project}; Bienvenido, acabas de ser asignado como ${profile} al proyecto ${project}. ${url}/seek`
+                );
+              } else {
+                this.aws.sendSMS(
+                  username,
+                  `Asignación de perfil`,
+                  `${project}; Bienvenido, acabas de ser asignado como ${profile} al proyecto ${project}. ${url}/signin`
+                );
+              }
             }
             this.db.pub(`users/${project_id}`, res);
             return respond(200, res);

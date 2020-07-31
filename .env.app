@@ -3,6 +3,8 @@ NODE_ENV=
 PORT=3000
 CORS=*
 SECRET=Enterprice-1701
+URL=
+URLISSUES=
 
 //EMAIL
 EMAIL=servicios@igestion.co
