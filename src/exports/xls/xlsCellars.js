@@ -1,15 +1,5 @@
 const XlsLib = require("../../lib/xls");
 const xls = new XlsLib();
-<<<<<<< HEAD
-
-const report = async function (data) {
-  const details = getValue(data, "details", []);
-  const sendMail = getValue(data, "sendMail", false);
-  const email = getValue(data, "email", "");
-
-  xls.setData("Bodegas", details.list).then(() => {
-    xls.saveFile(this._id, "bodegas.xlsx", to, this.user_id);
-=======
 const { getValue } = require("../../lib/utilities");
 
 const report = async function (data) {
@@ -20,7 +10,6 @@ const report = async function (data) {
 
   xls.setData("Bodegas", details.list).then(() => {
     xls.saveFile(project_id, "bodegas.xlsx", to, user_id);
->>>>>>> projects
   });
 
   return await definition;
