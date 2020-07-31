@@ -19,11 +19,6 @@ class Service {
     return await model.state(id, state);
   }
 
-  async types({ id, _class, state, search, page, rows }) {
-    const model = new Model({});
-    return await model.types(id, _class, state, search, page, rows);
-  }
-
   async dpas({ id, _class, state, search, page, rows }) {
     const model = new Model({});
     return await model.dpas(id, _class, id, state, search, page, rows);
@@ -32,16 +27,6 @@ class Service {
   async dpa({ id }) {
     const model = new Model({});
     return await model.dpa(id);
-  }
-
-  async users({ id, state, search, page, rows }) {
-    const model = new Model({});
-    return await model.users(id, state, search, page, rows);
-  }
-
-  async contacts({ id, state, search, page, rows }) {
-    const model = new Model({});
-    return await model.contacts(id, state, search, page, rows);
   }
 
   async warehouse({ id }) {
@@ -87,11 +72,6 @@ class Service {
   xlsCellars({ id, state, search, page, rows, to, username }) {
     const model = new Model({});
     return model.xlsCellars(id, state, search, page, rows, to, username);
-  }
-
-  async pdfUsers({ id, state, search, page, rows }, callback) {
-    const model = new Model({});
-    return await model.pdfUsers({ id, state, search, page, rows }, callback);
   }
 }
 

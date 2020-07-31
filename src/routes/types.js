@@ -1,14 +1,16 @@
 const express = require("express");
 const Service = require("../services/types");
 const response = require("../lib/response");
+//const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/api/types", router);
+  //app.use("/types", isAuth);
+  app.use("/types", router);
 
   const service = new Service();
 
-  router.get("/:id", async function(req, res, next) {
+  router.get("/:id", async function (req, res, next) {
     const { id } = req.params;
     try {
       const results = await service.get({ id });
@@ -20,7 +22,31 @@ function Api(app) {
     }
   });
 
-  router.post("/:id", async function(req, res, next) {
+  router.get("/", async function (req, res, next) {
+    const { id } = req.query;
+    const { _class } = req.query;
+    const { state } = req.query;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      const results = await service.list({
+        id,
+        _class,
+        state,
+        search,
+        page,
+        rows,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/:id", async function (req, res, next) {
     const { id } = req.params;
     const { body: params } = req;
     try {
@@ -33,7 +59,7 @@ function Api(app) {
     }
   });
 
-  router.patch("/:id", async function(req, res, next) {
+  router.patch("/:id", async function (req, res, next) {
     const { id } = req.params;
     const { state } = req.body;
     try {

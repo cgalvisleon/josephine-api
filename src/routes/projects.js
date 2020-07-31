@@ -48,62 +48,6 @@ function Api(app) {
     }
   });
 
-  router.get("/types/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { _class } = req.query;
-    const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      const results = await service.types({
-        id,
-        _class,
-        state,
-        search,
-        page,
-        rows,
-      });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/users/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      const results = await service.users({ id, state, search, page, rows });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/contacts/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      const results = await service.contacts({ id, state, search, page, rows });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
   router.get("/warehouses/:id", async function (req, res, next) {
     const { id } = req.params;
     try {
@@ -266,22 +210,6 @@ function Api(app) {
       const status = results.status;
       req = results.results;
       response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/pdf/users/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      await service.pdfUsers({ id, state, search, page, rows }, function (binary) {
-        res.setHeader("Content-type", "application/pdf");
-        res.send(binary);
-      });
     } catch (err) {
       next(err);
     }

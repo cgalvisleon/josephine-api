@@ -1,4 +1,5 @@
 const PgLib = require("../lib/postgresql");
+const PdfMake = require("../lib/pdfmake");
 const { getValue, validEmail, validCellPhone, respond } = require("../lib/utilities");
 const {
   MSG0001,
@@ -22,13 +23,17 @@ const {
 const { createToken, userId } = require("./auth");
 const Mailer = require("./mailer");
 const AWS = require("./aws");
+const pdfUsers = require("../exports/pdf/pdfUsers");
+const Project = require("./projects");
 
 class Model {
   constructor(params) {
     this.db = new PgLib();
+    this.pdfmake = new PdfMake({});
     this.mailer = new Mailer({});
     this.aws = new AWS({});
     this.params = params;
+    this.project = new Project();
   }
 
   scheme(data) {
@@ -541,6 +546,49 @@ class Model {
         .catch((err) => {
           return respond(200, { err }, 400, MSG0004);
         });
+    }
+  }
+
+  async list(_id, state, search, page, rows) {
+    _id = _id || "-1";
+    state = state || "";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 30;
+    const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
+    const params = [_id, state, search, page, rows];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, res);
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
+  async pdfUsers({ id, state, search, page, rows }, callback) {
+    id = id || "-1";
+    state = state || "0";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 1000;
+    try {
+      const project = await this.project.getData(id).then((result) => {
+        return result;
+      });
+      const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
+      const params = [id, state, search, page, rows];
+      const details = await this.db.get(query, params).then((result) => {
+        return result.result;
+      });
+      const data = { project, details };
+      const definition = await pdfUsers(data);
+      const options = {};
+      return await this.pdfmake.toStream(definition, options, callback);
+    } catch (err) {
+      return respond(200, { err }, 400, MSG0004);
     }
   }
 }

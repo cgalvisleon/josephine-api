@@ -16,8 +16,10 @@ const logsApi = require("./src/routes/logs");
 const monitorApi = require("./src/routes/monitor");
 const printsApi = require("./src/routes/prints");
 const usersApi = require("./src/routes/users");
+const contactsApi = require("./src/routes/contacts");
 const profilesApi = require("./src/routes/profiles");
 const projectsApi = require("./src/routes/projects");
+const typesApi = require("./src/routes/types");
 
 // Body parser limit
 app.use(express.json({ limit: "50mb" }));
@@ -42,8 +44,10 @@ logsApi(app);
 monitorApi(app);
 printsApi(app);
 usersApi(app);
+contactsApi(app);
 profilesApi(app);
 projectsApi(app);
+typesApi(app);
 
 // Catch 404
 app.use(notFoundHandler);

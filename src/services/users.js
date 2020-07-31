@@ -93,6 +93,16 @@ class Service {
     const model = new Model({});
     return await model.delete(session);
   }
+
+  async list({ id, state, search, page, rows }) {
+    const model = new Model({});
+    return await model.list(id, state, search, page, rows);
+  }
+
+  async pdfUsers({ id, state, search, page, rows }, callback) {
+    const model = new Model({});
+    return await model.pdfUsers({ id, state, search, page, rows }, callback);
+  }
 }
 
 module.exports = Service;

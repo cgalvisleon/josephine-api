@@ -6,44 +6,46 @@ class Model {
   constructor(params) {
     this.db = new PgLib();
     this.params = params;
-    this._id = getValue(this.params, "_id", "-1");
-    this._class = getValue(this.params, "_class", "");
   }
 
-  scheme(data) {
+  scheme() {
     const now = new Date();
     return {
-      date_make: getDateTime(data, "date_make", now),
-      date_update: getDateTime(data, "date_update", now),
-      project_id: getValue(data, "project_id", "-1"),
-      _class: getValue(data, "_class", ""),
-      _state: getValue(data, "_state", "0"),
-      _id: getValue(data, "_id", "-1"),
-      caption: getValue(data, "caption", ""),
-      description: getValue(data, "description", ""),
-      className: getValue(data, "classname", ""),
-      user_id: getValue(data, "user_id", "")
+      date_make: now,
+      date_update: now,
+      project_id: getValue(this.params, "project_id", "-1"),
+      _class: getValue(this.params, "_class", "-1"),
+      _state: "0",
+      _id: genId("-1"),
+      caption: "",
+      description: "",
+      className: getValue(this.params, "classname", ""),
+      user_id: getValue(this.params, "user_id", "-1"),
     };
   }
 
-  async get() {
-    if (this._id === "-1" || this._id === "new") {
-      this.params["_id"] = genId(this._id);
-      this.params["_class"] = this._class;
-      return respond(200, this.scheme(this.params));
+  async get(_id) {
+    if (_id === "-1" || _id === "new") {
+      return respond(200, this.scheme());
     } else {
-      const query = "SELECT * FROM js_core.GET_TYPE($1) RESULT";
-      const params = [this._id];
-      return await this.db
-        .get(query, params)
-        .then(result => {
-          const res = result.result;
-          return respond(200, this.scheme(res));
-        })
-        .catch(err => {
-          return respond(200, { err }, 400, MSG0004);
-        });
+      return await this.getData(_id).then((res) => {
+        return respond(200, res);
+      });
     }
+  }
+
+  async getData(_id) {
+    const query = "SELECT * FROM js_core.GET_TYPE($1) RESULT";
+    const params = [_id];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return res;
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 
   async set() {
@@ -57,38 +59,65 @@ class Model {
     } else if (!validStr(caption)) {
       return respond(200, {}, 400, "Nombre requerido");
     } else {
+      const _id = getValue(this.params, "_id", "-1");
       const description = getValue(this.params, "description", "");
       const user_id = getValue(this.params, "user_id", "-1");
       const query = "SELECT * FROM js_core.SET_TYPE($1, $2, $3, $4, $5, $6) RESULT";
-      const params = [project_id, _class, this._id, caption, description, user_id];
+      const params = [project_id, _class, _id, caption, description, user_id];
       return await this.db
         .post(query, params)
-        .then(result => {
+        .then((result) => {
           const res = result.result;
           this.db.pub(`types/${_class}/${project_id}`, res);
           return respond(200, this.scheme(res));
         })
-        .catch(err => {
+        .catch((err) => {
           return respond(200, { err }, 400, MSG0004);
         });
     }
   }
 
-  async state(state) {
-    state = state || "0";
-    const _id = this._id;
-    const query = "SELECT * FROM js_core.STATE_TYPE($1, $2) RESULT";
-    const params = [_id, state];
+  async state(_id, state) {
+    _id = _id || "-1";
+    state = state || "";
+    if (_id === "-1") {
+      return respond(200, {}, 400, "Projecto requerido");
+    } else if (state) {
+      return respond(200, {}, 400, "Estado requerido");
+    } else {
+      const query = "SELECT * FROM js_core.STATE_TYPE($1, $2) RESULT";
+      const params = [_id, state];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          const project_id = getValue(res, "project_id", "");
+          const _class = getValue(res, "_class", "");
+          this.db.pub(`types/${_class}/${project_id}`, res);
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
+  }
+
+  async list(_id, _class, state, search, page, rows) {
+    _id = _id || "-1";
+    _class = _class || "-1";
+    state = state || "";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 30;
+    const query = "SELECT * FROM js_core.LIST_TYPES($1, $2, $3, $4, $5, $6) RESULT";
+    const params = [_id, _class, state, search, page, rows];
     return await this.db
-      .post(query, params)
-      .then(result => {
+      .get(query, params)
+      .then((result) => {
         const res = result.result;
-        const project_id = getValue(res, "project_id", "");
-        const _class = getValue(res, "_class", "");
-        this.db.pub(`types/${_class}/${project_id}`, res);
         return respond(200, res);
       })
-      .catch(err => {
+      .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
       });
   }

@@ -23,6 +23,22 @@ function Api(app) {
     }
   });
 
+  router.get("/", async function (req, res, next) {
+    const { id } = req.query;
+    const { state } = req.query;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      const results = await service.list({ id, state, search, page, rows });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.post("/password", async function (req, res, next) {
     const { user_id } = req.body;
     const { password } = req.body;
@@ -98,6 +114,22 @@ function Api(app) {
       const status = results.status;
       req = results.results;
       response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/pdf/:id", async function (req, res, next) {
+    const { id } = req.params;
+    const { state } = req.query;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      await service.pdfUsers({ id, state, search, page, rows }, function (binary) {
+        res.setHeader("Content-type", "application/pdf");
+        res.send(binary);
+      });
     } catch (err) {
       next(err);
     }

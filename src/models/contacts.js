@@ -37,7 +37,7 @@ class Model {
       _data: getValue(data, "_data", {}),
       _v: getValue(data, "_v", 0),
       user_id: getValue(data, "user_id", "-1"),
-      username: getValue(data, "username", "")
+      username: getValue(data, "username", ""),
     };
   }
 
@@ -50,11 +50,11 @@ class Model {
       const params = [this._id, project_id];
       return await this.db
         .get(query, params)
-        .then(result => {
+        .then((result) => {
           const res = result.result;
           return respond(200, this.scheme(res));
         })
-        .catch(err => {
+        .catch((err) => {
           return respond(200, { err }, 400, MSG0004);
         });
     }
@@ -100,16 +100,16 @@ class Model {
         project_id,
         profile_tp,
         data,
-        user_id
+        user_id,
       ];
       return await this.db
         .post(query, params)
-        .then(result => {
+        .then((result) => {
           const res = result.result;
           this.db.pub(`contacts/${project_id}`, res);
           return respond(200, this.scheme(res));
         })
-        .catch(err => {
+        .catch((err) => {
           return respond(200, { err }, 400, MSG0004);
         });
     }
@@ -122,12 +122,31 @@ class Model {
     const params = [_id, project_id, _state];
     return await this.db
       .post(query, params)
-      .then(result => {
+      .then((result) => {
         const res = result.result;
         this.db.pub(`contacts/${project_id}`, { _id, _state });
         return respond(200, res);
       })
-      .catch(err => {
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
+  async list(_id, state, search, page, rows) {
+    _id = _id || "-1";
+    state = state || "";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 30;
+    const query = "SELECT * FROM js_core.LIST_CONTACTS($1, $2, $3, $4, $5) RESULT";
+    const params = [_id, state, search, page, rows];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, res);
+      })
+      .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
       });
   }

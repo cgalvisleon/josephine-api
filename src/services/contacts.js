@@ -1,4 +1,4 @@
-const Model = require('../models/contacts');
+const Model = require("../models/contacts");
 
 class Service {
   constructor() {}
@@ -18,6 +18,11 @@ class Service {
   async state({ id, project_id, _state }) {
     const model = new Model({ _id: id });
     return await model.state(project_id, _state);
+  }
+
+  async list({ id, state, search, page, rows }) {
+    const model = new Model({});
+    return await model.list(id, state, search, page, rows);
   }
 }
 

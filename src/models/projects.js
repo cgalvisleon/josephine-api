@@ -1,14 +1,11 @@
 const PgLib = require("../lib/postgresql");
-const PdfMake = require("../lib/pdfmake");
 const { getValue, respond, genId } = require("../lib/utilities");
 const { MSG0004 } = require("../lib/msg");
-const pdfUsers = require("../exports/pdf/pdfUsers");
 const xlsCellars = require("../exports/xls/xlsCellars");
 
 class Model {
   constructor(params) {
     this.db = new PgLib();
-    this.pdfmake = new PdfMake({});
     this.params = params;
   }
 
@@ -131,26 +128,6 @@ class Model {
     }
   }
 
-  async types(_id, _class, state, search, page, rows) {
-    _id = _id || "-1";
-    _class = _class || "-1";
-    state = state || "";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_core.LIST_TYPES($1, $2, $3, $4, $5, $6) RESULT";
-    const params = [_id, _class, state, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
   async dpas(_class, mainId, state, search, page, rows) {
     const query = "SELECT * FROM js_core.LIST_DPA($1, $2, $3, $4, $5, $6) RESULT";
     const params = [_class, mainId, state, search, page, rows];
@@ -168,44 +145,6 @@ class Model {
   async dpa(id) {
     const query = "SELECT * FROM js_core.GET_DPA($1) RESULT";
     const params = [id];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async users(_id, state, search, page, rows) {
-    _id = _id || "-1";
-    state = state || "";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
-    const params = [_id, state, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async contacts(_id, state, search, page, rows) {
-    _id = _id || "-1";
-    state = state || "";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_core.LIST_CONTACTS($1, $2, $3, $4, $5) RESULT";
-    const params = [_id, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -391,29 +330,6 @@ class Model {
       .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
       });
-  }
-
-  async pdfUsers({ id, state, search, page, rows }, callback) {
-    state = state || "0";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 1000;
-    try {
-      const project = await this.getData(id).then((result) => {
-        return result;
-      });
-      const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
-      const params = [id, state, search, page, rows];
-      const details = await this.db.get(query, params).then((result) => {
-        return result.result;
-      });
-      const data = { project, details };
-      const definition = await pdfUsers(data);
-      const options = {};
-      return await this.pdfmake.toStream(definition, options, callback);
-    } catch (err) {
-      return respond(200, { err }, 400, MSG0004);
-    }
   }
 }
 

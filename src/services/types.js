@@ -1,27 +1,28 @@
-const Model = require('../models/types')
+const Model = require("../models/types");
 
 class Service {
-  constructor() {
-  }
+  constructor() {}
 
   async get({ id }) {
-    const params = { _id: id }
-    const model = new Model(params)
-    return await model.get()
+    const model = new Model({});
+    return await model.get(id);
   }
 
   async set({ id, params } = {}) {
-    params._id = id
-    const model = new Model(params)
-    return await model.set()
-  }
-  
-  async state({ id, state }) {
-    const params = { _id: id }
-    const model = new Model(params)
-    return await model.state(state)
+    params._id = id;
+    const model = new Model(params);
+    return await model.set();
   }
 
+  async state({ id, state }) {
+    const model = new Model({});
+    return await model.state(id, state);
+  }
+
+  async list({ id, _class, state, search, page, rows }) {
+    const model = new Model({});
+    return await model.list(id, _class, state, search, page, rows);
+  }
 }
 
-module.exports = Service
+module.exports = Service;
