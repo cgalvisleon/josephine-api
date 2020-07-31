@@ -1,18 +1,15 @@
 const PgLib = require("../lib/postgresql");
-const XlsLib = require("../lib/xls");
 const PdfMake = require("../lib/pdfmake");
 const { getValue, respond, genId } = require("../lib/utilities");
 const { MSG0004 } = require("../lib/msg");
 const pdfUsers = require("../exports/pdf/pdfUsers");
+const xlsCellars = require("../exports/xls/xlsCellars");
 
 class Model {
   constructor(params) {
     this.db = new PgLib();
     this.pdfmake = new PdfMake({});
-    this.xls = new XlsLib();
     this.params = params;
-    this._id = getValue(this.params, "_id", "-1");
-    this.user_id = getValue(this.params, "user_id", "-1");
   }
 
   scheme() {
@@ -41,19 +38,19 @@ class Model {
     };
   }
 
-  async get(id) {
-    if (id === "-1" || id === "new") {
+  async get(_id) {
+    if (_id === "-1" || _id === "new") {
       return respond(200, this.scheme());
     } else {
-      return await this.getData(id).then((res) => {
+      return await this.getData(_id).then((res) => {
         return respond(200, res);
       });
     }
   }
 
-  async getData(id) {
+  async getData(_id) {
     const query = "SELECT * FROM js_core.GET_PROJECT($1) RESULT";
-    const params = [id];
+    const params = [_id];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -71,6 +68,7 @@ class Model {
     if (caption === "") {
       return respond(200, {}, 400, "Nombre requerido");
     } else {
+      const _id = getValue(this.params, "_id", "-1");
       const description = getValue(this.params, "description", "");
       const cellphone = getValue(this.params, "cellphone", "");
       const phone = getValue(this.params, "phone", "");
@@ -84,7 +82,7 @@ class Model {
       const query = "SELECT * FROM js_core.SET_PROJECT($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RESULT";
       const params = [
         _class,
-        this._id,
+        _id,
         caption,
         description,
         cellphone,
@@ -110,26 +108,38 @@ class Model {
     }
   }
 
-  async state(state) {
-    state = state || "0";
-    const _id = this._id;
-    const query = "SELECT * FROM js_core.STATE_PROJECT($1, $2) RESULT";
-    const params = [_id, state];
-    return await this.db
-      .post(query, params)
-      .then((result) => {
-        const res = result.result;
-        this.db.pub("projects", res);
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
+  async state(_id, state) {
+    _id = _id || "-1";
+    state = state || "";
+    if (_id === "-1") {
+      return respond(200, {}, 400, "Projecto requerido");
+    } else if (state) {
+      return respond(200, {}, 400, "Estado requerido");
+    } else {
+      const query = "SELECT * FROM js_core.STATE_PROJECT($1, $2) RESULT";
+      const params = [_id, state];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          this.db.pub("projects", res);
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
   }
 
-  async types(_class, state, search, page, rows) {
+  async types(_id, _class, state, search, page, rows) {
+    _id = _id || "-1";
+    _class = _class || "-1";
+    state = state || "";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 30;
     const query = "SELECT * FROM js_core.LIST_TYPES($1, $2, $3, $4, $5, $6) RESULT";
-    const params = [this._id, _class, state, search, page, rows];
+    const params = [_id, _class, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -169,9 +179,14 @@ class Model {
       });
   }
 
-  async users(state, search, page, rows) {
+  async users(_id, state, search, page, rows) {
+    _id = _id || "-1";
+    state = state || "";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 30;
     const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
-    const params = [this._id, state, search, page, rows];
+    const params = [_id, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -183,9 +198,14 @@ class Model {
       });
   }
 
-  async contacts(state, search, page, rows) {
+  async contacts(_id, state, search, page, rows) {
+    _id = _id || "-1";
+    state = state || "";
+    search = search || "";
+    page = page || 1;
+    rows = rows || 30;
     const query = "SELECT * FROM js_core.LIST_CONTACTS($1, $2, $3, $4, $5) RESULT";
-    const params = [this._id, state, search, page, rows];
+    const params = [_id, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -198,8 +218,9 @@ class Model {
   }
 
   async warehouse() {
+    _id = _id || "-1";
     const query = "SELECT * FROM js_store.GET_PROJECT_WAREHOUSE($1) RESULT";
-    const params = [this._id];
+    const params = [_id];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -211,13 +232,14 @@ class Model {
       });
   }
 
-  async cellars(state, search, page, rows) {
+  async cellars(_id, state, search, page, rows) {
+    _id = _id || "-1";
     state = state || "0";
     search = search || "";
     page = page || 1;
     rows = rows || 30;
     const query = "SELECT * FROM js_store.LIST_PROJECT_CELLAR($1, $2, $3, $4, $5) RESULT";
-    const params = [this._id, state, search, page, rows];
+    const params = [_id, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -229,13 +251,14 @@ class Model {
       });
   }
 
-  async references(state, search, page, rows) {
+  async references(_id, state, search, page, rows) {
+    _id = _id || "-1";
     state = state || "0";
     search = search || "";
     page = page || 1;
     rows = rows || 30;
     const query = "SELECT * FROM js_store.LIST_REFERENCES($1, $2, $3, $4, $5) RESULT";
-    const params = [this._id, state, search, page, rows];
+    const params = [_id, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -247,14 +270,15 @@ class Model {
       });
   }
 
-  async typeReferences(_class, state, search, page, rows) {
+  async typeReferences(_id, _class, state, search, page, rows) {
+    _id = _id || "-1";
     _class = _class || "REFERENCE_TYPE00";
     state = state || "0";
     search = search || "";
     page = page || 1;
     rows = rows || 30;
     const query = "SELECT * FROM js_store.LIST_REFERENCES($1, $2, $3, $4, $5, $6) RESULT";
-    const params = [this._id, _class, state, search, page, rows];
+    const params = [_id, _class, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -266,14 +290,15 @@ class Model {
       });
   }
 
-  async documents(_class, state, search, page, rows) {
+  async documents(_id, _class, state, search, page, rows) {
+    _id = _id || "-1";
     _class = _class || "";
     state = state || "0";
     search = search || "";
     page = page || 1;
     rows = rows || 30;
     const query = "SELECT * FROM js_core.LIST_PROJECT_DOCUMENTS($1, $2, $3, $4, $5, $6) RESULT";
-    const params = [this._id, _class, state, search, page, rows];
+    const params = [_id, _class, state, search, page, rows];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -285,10 +310,11 @@ class Model {
       });
   }
 
-  async document(_class) {
+  async document(_class, _id) {
     _class = _class || "";
+    _id = _id || "-1";
     const query = "SELECT * FROM js_core.GET_DOCUMENT($1, $2) RESULT";
-    const params = [_class, this._id];
+    const params = [_class, _id];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -336,20 +362,24 @@ class Model {
       });
   }
 
-  xlsCellars(state, search, page, rows, to) {
+  xlsCellars(project_id, state, search, page, rows, user_id, to) {
     state = state || "0";
     search = search || "";
     page = page || 1;
     rows = rows || 30;
     const query = "SELECT * FROM js_store.LIST_PROJECT_CELLAR($1, $2, $3, $4, $5) RESULT";
-    const params = [this._id, state, search, page, rows];
+    const params = [project_id, state, search, page, rows];
     return this.db
       .get(query, params)
       .then((result) => {
         const data = result.result;
-        this.xls.setData("Bodegas", data.list).then(() => {
-          this.xls.saveFile(this._id, "bodegas.xlsx", to, this.user_id);
-        });
+        const params = {
+          details: data,
+          project_id,
+          to,
+          user_id,
+        };
+        xlsCellars(params);
       })
       .then(() => {
         const now = new Date();

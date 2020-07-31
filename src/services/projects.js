@@ -15,75 +15,63 @@ class Service {
   }
 
   async state({ id, state }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.state(state);
+    const model = new Model({});
+    return await model.state(id, state);
   }
 
   async types({ id, _class, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.types(_class, state, search, page, rows);
+    const model = new Model({});
+    return await model.types(id, _class, state, search, page, rows);
   }
 
   async dpas({ id, _class, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.dpas(_class, id, state, search, page, rows);
+    const model = new Model({});
+    return await model.dpas(id, _class, id, state, search, page, rows);
   }
 
   async dpa({ id }) {
-    const params = {};
-    const model = new Model(params);
+    const model = new Model({});
     return await model.dpa(id);
   }
 
   async users({ id, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.users(state, search, page, rows);
+    const model = new Model({});
+    return await model.users(id, state, search, page, rows);
   }
 
   async contacts({ id, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.contacts(state, search, page, rows);
+    const model = new Model({});
+    return await model.contacts(id, state, search, page, rows);
   }
 
   async warehouse({ id }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.warehouse();
+    const model = new Model({});
+    return await model.warehouse(id);
   }
 
   async cellars({ id, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.cellars(state, search, page, rows);
+    const model = new Model({});
+    return await model.cellars(id, state, search, page, rows);
   }
 
   async references({ id, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.references(state, search, page, rows);
+    const model = new Model({});
+    return await model.references(id, state, search, page, rows);
   }
 
   async typeReferences({ id, _class, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.typeReferences(_class, state, search, page, rows);
+    const model = new Model({});
+    return await model.typeReferences(id, _class, state, search, page, rows);
   }
 
   async documents({ id, _class, state, search, page, rows }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.documents(_class, state, search, page, rows);
+    const model = new Model({});
+    return await model.documents(id, _class, state, search, page, rows);
   }
 
   async document({ _class, id }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.document(_class);
+    const model = new Model({});
+    return await model.document(_class, id);
   }
 
   async kardex({ cellar_id, search, page, rows }) {
@@ -97,9 +85,8 @@ class Service {
   }
 
   xlsCellars({ id, state, search, page, rows, to, username }) {
-    const params = { _id: id, username: username };
-    const model = new Model(params);
-    return model.xlsCellars(state, search, page, rows, to);
+    const model = new Model({});
+    return model.xlsCellars(id, state, search, page, rows, to, username);
   }
 
   async pdfUsers({ id, state, search, page, rows }, callback) {

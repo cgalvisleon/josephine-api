@@ -74,8 +74,13 @@ class XlsLib {
       let base64 = buff.toString("base64");
       this.aws.uploadBase64(base64, `${project_id}/export/xlsx`, name, ".xlsx").then((result) => {
         const location = result.Location;
+<<<<<<< HEAD
         socket.io.emit(`/export/xls/${user_id}`, { location });
         socket.io.emit(`/export/xls/${project_id}`, { location });
+=======
+        socket.io.emit(`/export/xlsx/${user_id}`, { location });
+        socket.io.emit(`/export/xlsx/${project_id}`, { location });
+>>>>>>> projects
         this.mailer.sendActionMail(
           to,
           "Archivo exportado",
