@@ -30,7 +30,8 @@ const report = async function (data) {
   let details_heights = [10];
   let details_print = [
     [
-      { text: `Nombre`, fillColor: "#CCCCCC", alignment: "center" },
+      { text: `Nombre`, fillColor: "#CCCCCC", alignment: "center", colSpan: 2 },
+      { text: ``, fillColor: "#CCCCCC", alignment: "center" },
       { text: `Usuario`, fillColor: "#CCCCCC", alignment: "center" },
       { text: `Perfil`, fillColor: "#CCCCCC", alignment: "center" },
       { text: `Telefono`, fillColor: "#CCCCCC", alignment: "center" },
@@ -38,6 +39,7 @@ const report = async function (data) {
       { text: `Dirección`, fillColor: "#CCCCCC", alignment: "center" },
     ],
   ];
+
   let details_list = getValue(details, "list", []);
   details_list.map((item, i) => {
     const item_print = [
@@ -79,8 +81,8 @@ const report = async function (data) {
       {
         style: "tableHeader",
         table: {
-          widths: ["*", 120, 80, 50, 50, 120],
-          heights: [10],
+          widths: [15, "*", 120, 80, 50, 70, 120],
+          heights: details_heights,
           headerRows: 1,
           body: details_print,
         },
