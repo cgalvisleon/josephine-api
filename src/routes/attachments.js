@@ -6,11 +6,35 @@ const response = require("../lib/response");
 function Api(app) {
   const router = express.Router();
   //app.use('/api/attachments', isAuth);
-  app.use("/api/attachments", router);
+  app.use("/attachments", router);
 
   const service = new Service();
 
-  router.post("/:project_id", async function(req, res, next) {
+  router.get("/:id", async function (req, res, next) {
+    const { id } = req.params;
+    const { _class } = req.query;
+    const { state } = req.query;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      const results = await service.getFiles({
+        id,
+        _class,
+        state,
+        search,
+        page,
+        rows,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/:project_id", async function (req, res, next) {
     const { project_id } = req.params;
     const { id } = req.body;
     const { object_id } = req.body;
@@ -32,7 +56,7 @@ function Api(app) {
         caption,
         description,
         user_id,
-        filepath
+        filepath,
       });
       const status = results.status;
       req = results.results;
@@ -42,7 +66,7 @@ function Api(app) {
     }
   });
 
-  router.post("/base64/:project_id", async function(req, res, next) {
+  router.post("/base64/:project_id", async function (req, res, next) {
     const { project_id } = req.params;
     const { id } = req.body;
     const { object_id } = req.body;
@@ -70,7 +94,7 @@ function Api(app) {
         ext,
         size,
         user_id,
-        base64
+        base64,
       });
       const status = results.status;
       req = results.results;
@@ -80,35 +104,11 @@ function Api(app) {
     }
   });
 
-  router.delete("/:object_id", async function(req, res, next) {
+  router.delete("/:object_id", async function (req, res, next) {
     const { object_id } = req.params;
     const { main_id } = req.body;
     try {
       const results = await service.deleteFile({ object_id, main_id });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/:id", async function(req, res, next) {
-    const { id } = req.params;
-    const { _class } = req.query;
-    const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      const results = await service.getFiles({
-        id,
-        _class,
-        state,
-        search,
-        page,
-        rows
-      });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);

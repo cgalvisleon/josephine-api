@@ -10,9 +10,9 @@ function Api(app) {
 
   const version = {
     version: config.version,
-    project: "Josephine",
-    company: "Dploy SAS",
-    web: "https://josephinelabs.com",
+    project: config.project,
+    company: config.company,
+    web: config.url,
   };
 
   const users = new Users();

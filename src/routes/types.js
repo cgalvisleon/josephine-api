@@ -1,11 +1,9 @@
 const express = require("express");
 const Service = require("../services/types");
 const response = require("../lib/response");
-//const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  //app.use("/types", isAuth);
   app.use("/types", router);
 
   const service = new Service();

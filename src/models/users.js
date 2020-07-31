@@ -106,7 +106,7 @@ class Model {
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
-            this.aws.sendSMS(username, "Inicio de sesión", "Dploy; Acabas de iniciar sesión");
+            this.aws.sendSMS(username, "Inicio de sesión", `${project}; Acabas de iniciar sesión`);
           }
           return respond(200, result);
         })
@@ -292,7 +292,7 @@ class Model {
             const msg = "Código enviado";
             return respond(200, { msg });
           } else if (validCellPhone(username)) {
-            this.aws.sendSMS(username, "Código de validación", `Dploy; Código de validación ${code}`);
+            this.aws.sendSMS(username, "Código de validación", `${project}; Código de validación ${code}`);
             const msg = "Código enviado";
             return respond(200, { msg });
           } else {
@@ -358,7 +358,7 @@ class Model {
         })
         .then((result) => {
           if (validCellPhone(username)) {
-            this.aws.sendSMS(username, "Inicio de sesión", "Dploy; Acabas de iniciar sesión");
+            this.aws.sendSMS(username, "Inicio de sesión", "${project}; Acabas de iniciar sesión");
           }
           return respond(200, result);
         })
@@ -428,7 +428,7 @@ class Model {
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
-            this.aws.sendSMS(username, "Recuperación de contraseña", "Dploy; Acabas de recuperar tu contraseña");
+            this.aws.sendSMS(username, "Recuperación de contraseña", "${project}; Acabas de recuperar tu contraseña");
           }
           return respond(200, result);
         })

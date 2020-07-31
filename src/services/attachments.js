@@ -3,6 +3,11 @@ const Model = require("../models/aws");
 class Service {
   constructor() {}
 
+  async getFiles({ id, _class, state, search, page, rows }) {
+    const model = new Model({});
+    return await model.getFiles(id, _class, state, search, page, rows);
+  }
+
   async uploadFile({ project_id, id, object_id, group_tp, _class, main_id, caption, description, user_id, filepath }) {
     const model = new Model();
     return await model.uploadFile(project_id, id, object_id, group_tp, _class, main_id, caption, description, user_id, filepath);
@@ -30,11 +35,6 @@ class Service {
   async deleteFile({ object_id, main_id }) {
     const model = new Model();
     return await model.deleteFile(object_id, main_id);
-  }
-
-  async getFiles({ id, _class, state, search, page, rows }) {
-    const model = new Model({});
-    return await model.getFiles(id, _class, state, search, page, rows);
   }
 }
 

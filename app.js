@@ -21,6 +21,7 @@ const profilesApi = require("./src/routes/profiles");
 const projectsApi = require("./src/routes/projects");
 const typesApi = require("./src/routes/types");
 const talkingApi = require("./src/routes/talkings");
+const attachmensApi = require("./src/routes/attachments");
 const pdfApi = require("./src/routes/pdf");
 
 // Body parser limit
@@ -51,6 +52,7 @@ profilesApi(app);
 projectsApi(app);
 typesApi(app);
 talkingApi(app);
+attachmensApi(app);
 pdfApi(app);
 
 // Catch 404
