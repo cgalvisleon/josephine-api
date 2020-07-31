@@ -54,7 +54,7 @@ class Service {
     return await model.setPassword(id, password, confirmation);
   }
 
-  async folders({ id, user_id }) {
+  async folders({ user_id, id }) {
     const model = new Model({});
     return await model.folders(user_id, id);
   }

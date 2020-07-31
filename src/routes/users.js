@@ -5,12 +5,12 @@ const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/api/users", isAuth);
-  app.use("/api/users", router);
+  app.use("/users", isAuth);
+  app.use("/users", router);
 
   const service = new Service();
 
-  router.get("/user/:id", async function(req, res, next) {
+  router.get("/:id", async function (req, res, next) {
     const { id } = req.params;
     const { project_id } = req.query;
     try {
@@ -23,55 +23,7 @@ function Api(app) {
     }
   });
 
-  router.get("/profile", async function(req, res, next) {
-    const { user_id } = req.body;
-    try {
-      const results = await service.profile({ id: user_id });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.post("/profile", async function(req, res, next) {
-    const { user_id } = req.body;
-    const { caption } = req.body;
-    const { description } = req.body;
-    const { cellphone } = req.body;
-    const { phone } = req.body;
-    const { email } = req.body;
-    const { country_id } = req.body;
-    const { city_id } = req.body;
-    const { address } = req.body;
-    const { identification_tp } = req.body;
-    const { identification } = req.body;
-    const { _data } = req.body;
-    try {
-      const results = await service.setProfile(
-        user_id,
-        caption,
-        description,
-        cellphone,
-        phone,
-        email,
-        country_id,
-        city_id,
-        address,
-        identification_tp,
-        identification,
-        _data
-      );
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.post("/password", async function(req, res, next) {
+  router.post("/password", async function (req, res, next) {
     const { user_id } = req.body;
     const { password } = req.body;
     const { confirmation } = req.body;
@@ -85,11 +37,11 @@ function Api(app) {
     }
   });
 
-  router.get("/folders/:id", async function(req, res, next) {
+  router.get("/folders/:id", async function (req, res, next) {
     const { id } = req.params;
     const { user_id } = req.body;
     try {
-      const results = await service.folders({ id, user_id });
+      const results = await service.folders({ user_id, id });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);
@@ -98,7 +50,7 @@ function Api(app) {
     }
   });
 
-  router.post("/:project_id", async function(req, res, next) {
+  router.post("/:project_id", async function (req, res, next) {
     const { project_id } = req.params;
     const { username } = req.body;
     const { caption } = req.body;
@@ -114,7 +66,7 @@ function Api(app) {
     }
   });
 
-  router.patch("/finish/:id", async function(req, res, next) {
+  router.patch("/finish/:id", async function (req, res, next) {
     const { id } = req.params;
     const { project_id } = req.body;
     try {
@@ -127,7 +79,7 @@ function Api(app) {
     }
   });
 
-  router.get("/typehead/:search", async function(req, res, next) {
+  router.get("/typehead/:search", async function (req, res, next) {
     const { search } = req.params;
     try {
       const results = await service.auto(search);
@@ -139,46 +91,10 @@ function Api(app) {
     }
   });
 
-  router.delete("/:session", async function(req, res, next) {
+  router.delete("/:session", async function (req, res, next) {
     const { session } = req.params;
     try {
       const results = await service.delete({ session });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/stock/:id", async function(req, res, next) {
-    const { id } = req.params;
-    const { document_id } = req.query;
-    const { reference_id } = req.query;
-    try {
-      const results = await service.stock({ id, document_id, reference_id });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/stocks/:id", async function(req, res, next) {
-    const { id } = req.params;
-    const { document_id } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      const results = await service.stocks({
-        id,
-        document_id,
-        search,
-        page,
-        rows
-      });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);

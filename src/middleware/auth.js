@@ -12,7 +12,7 @@ function isAuth(req, res, next) {
   }
   const token = req.headers.authorization.split(" ")[1];
   const session = req.headers.session;
-  return verify(token, session).then(result => {
+  return verify(token, session).then((result) => {
     if (!result.verify) {
       return response.success(req, res, 401);
     } else {

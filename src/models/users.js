@@ -56,6 +56,9 @@ class Model {
   }
 
   async signIn(username, password, app) {
+    username = username || "";
+    password = password || "";
+    app = app || "";
     if (!username || username === "") {
       return respond(200, {}, 206, MSG0001);
     } else if (!password || password === "") {
@@ -104,9 +107,10 @@ class Model {
     }
   }
 
-  async profile(id) {
+  async profile(_id) {
+    _id = _id || "-1";
     const query = "SELECT * FROM js_core.GET_USER($1) RESULT";
-    const params = [id];
+    const params = [_id];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -119,17 +123,25 @@ class Model {
   }
 
   async user(_id, project_id) {
-    const query = "SELECT * FROM js_core.GET_USER($1, $2) RESULT";
-    const params = [_id, project_id];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
+    _id = _id || "-1";
+    project_id = project_id || "-1";
+    if (_id === "-1") {
+      return respond(200, {}, 400, "Usuario requerido");
+    } else if (project_id === "-1") {
+      return respond(200, {}, 400, "Projecto requerido");
+    } else {
+      const query = "SELECT * FROM js_core.GET_USER($1, $2) RESULT";
+      const params = [_id, project_id];
+      return await this.db
+        .get(query, params)
+        .then((result) => {
+          const res = result.result;
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
   }
 
   async setProfile(
@@ -146,6 +158,17 @@ class Model {
     identification,
     _data
   ) {
+    caption = caption || "";
+    description = description || "";
+    cellphone = cellphone || "";
+    phone = phone || "";
+    email = email || "";
+    country_id = country_id || "-1";
+    city_id = city_id || "-1";
+    address = address || "";
+    identification_tp = identification_tp || "-1";
+    identification = identification || "";
+    _data = _data || {};
     if (!caption || caption === "") {
       return respond(200, {}, 206, MSG0010);
     } else {
@@ -184,6 +207,9 @@ class Model {
   }
 
   async setPassword(id, password, confirmation) {
+    id = id || "-1";
+    password = password || "";
+    confirmation = confirmation || "";
     if (!password || password === "") {
       return respond(200, {}, 206, MSG0002);
     } else if (!password || password.length < 8) {
@@ -211,20 +237,29 @@ class Model {
   }
 
   async folders(user_id, id) {
-    const query = "SELECT * FROM js_core.GET_USER_FOLDER($1, $2) RESULT";
-    const params = [user_id, id];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
+    user_id = user_id || "-1";
+    id = id || "-1";
+    if (user_id === "-1") {
+      return respond(200, {}, 400, "Usuario requerido");
+    } else if (id === "-1") {
+      return respond(200, {}, 400, "Projecto requerido");
+    } else {
+      const query = "SELECT * FROM js_core.GET_USER_FOLDER($1, $2) RESULT";
+      const params = [user_id, id];
+      return await this.db
+        .get(query, params)
+        .then((result) => {
+          const res = result.result;
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
   }
 
   async valid(username) {
+    username = username || "";
     if (!username || username === "") {
       return respond(200, {}, 206, MSG0001);
     } else {
@@ -262,6 +297,15 @@ class Model {
   }
 
   async signup(username, password, confirmation, caption, project, module_id, city_id, code, app) {
+    username = username || "";
+    password = password || "";
+    confirmation = confirmation || "";
+    caption = caption || "";
+    project = project || "";
+    module_id = module_id || "-1";
+    city_id = city_id || "-1";
+    code = code || "";
+    app = app || "";
     if (!username || username === "") {
       return respond(200, {}, 206, MSG0001);
     } else if (!validEmail(username) && !validCellPhone(username)) {
@@ -326,6 +370,11 @@ class Model {
   }
 
   async forgot(username, password, confirmation, code, app) {
+    username = username || "";
+    password = password || "";
+    confirmation = confirmation || "";
+    code = code || "";
+    app = app || "";
     if (!username || username === "") {
       return respond(200, {}, 206, MSG0001);
     } else if (!password || password === "") {
@@ -381,6 +430,11 @@ class Model {
   }
 
   async set(username, caption, project_id, profile_tp, user_id) {
+    username = username || "";
+    caption = caption || "";
+    project_id = project_id || "-1";
+    profile_tp = profile_tp || "-1";
+    user_id = user_id || "-1";
     if (!username || username === "") {
       return respond(200, {}, 206, MSG0001);
     } else if (!caption || caption === "") {
@@ -423,21 +477,30 @@ class Model {
   }
 
   async finish(user_id, project_id) {
-    const query = "SELECT * FROM js_core.CHK_PROJECT_USER($1, $2, $3, $4) RESULT";
-    const params = [project_id, user_id, "ALL", false];
-    return await this.db
-      .post(query, params)
-      .then((result) => {
-        const res = result.result;
-        this.db.pub(`users/${project_id}`, { _id: user_id, _state: "2" });
-        return respond(200, { res });
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0003);
-      });
+    user_id = user_id || "-1";
+    profile_tp = profile_tp || "-1";
+    if (user_id === "-1") {
+      return respond(200, {}, 400, "Usuario requerido");
+    } else if (profile_tp === "-1") {
+      return respond(200, {}, 400, "Perfil requerido");
+    } else {
+      const query = "SELECT * FROM js_core.CHK_PROJECT_USER($1, $2, $3, $4) RESULT";
+      const params = [project_id, user_id, "ALL", false];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          this.db.pub(`users/${project_id}`, { _id: user_id, _state: "2" });
+          return respond(200, { res });
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
   }
 
   async auto(search) {
+    search = search || "";
     if (!search || search.length < 2) {
       return respond(200, {});
     } else {
@@ -456,6 +519,7 @@ class Model {
   }
 
   async delete(session) {
+    session = session || {};
     const _id = userId(session);
     if (_id === "") {
       return respond(400, {}, 400, "Usuario invalido");
