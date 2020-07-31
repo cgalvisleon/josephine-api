@@ -21,7 +21,7 @@ class Service {
 
   async dpas({ id, _class, state, search, page, rows }) {
     const model = new Model({});
-    return await model.dpas(id, _class, id, state, search, page, rows);
+    return await model.dpas(_class, id, state, search, page, rows);
   }
 
   async dpa({ id }) {

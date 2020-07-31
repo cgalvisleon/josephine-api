@@ -74,10 +74,24 @@ async function userId(session) {
     });
 }
 
+async function useToken(token) {
+  const query = "SELECT * FROM js_core.USE_TOKEN($1) RESULT";
+  const params = [token];
+  return await db
+    .get(query, params)
+    .then((result) => {
+      return result;
+    })
+    .catch(() => {
+      return "-1";
+    });
+}
+
 module.exports = {
   encode,
   decode,
   createToken,
   verify,
   userId,
+  useToken,
 };

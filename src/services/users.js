@@ -84,6 +84,16 @@ class Service {
     return await model.finish(user_id, project_id);
   }
 
+  async createToken(user_id, app) {
+    const model = new Model({});
+    return await model.createToken(user_id, app);
+  }
+
+  async useToken(token) {
+    const model = new Model({});
+    return await model.useToken(token);
+  }
+
   async auto(search) {
     const model = new Model({});
     return await model.auto(search);

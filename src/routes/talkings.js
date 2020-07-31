@@ -5,12 +5,12 @@ const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  app.use("/api/talkings", isAuth);
-  app.use("/api/talkings", router);
+  app.use("/talkings", isAuth);
+  app.use("/talkings", router);
 
   const service = new Service();
 
-  router.get("/:id", async function(req, res, next) {
+  router.get("/:id", async function (req, res, next) {
     const { id } = req.params;
     const { user_id } = req.body;
     const { search } = req.query;
@@ -22,7 +22,7 @@ function Api(app) {
         user_id,
         search,
         page,
-        rows
+        rows,
       });
       const status = results.status;
       req = results.results;
@@ -32,7 +32,7 @@ function Api(app) {
     }
   });
 
-  router.get("/talk/:toId", async function(req, res, next) {
+  router.get("/talk/:toId", async function (req, res, next) {
     const { toId } = req.params;
     const { user_id } = req.body;
     const { search } = req.query;
@@ -48,7 +48,7 @@ function Api(app) {
     }
   });
 
-  router.post("/talk/:toId", async function(req, res, next) {
+  router.post("/talk/:toId", async function (req, res, next) {
     const { toId } = req.params;
     const { user_id } = req.body;
     const { message } = req.body;
@@ -62,7 +62,7 @@ function Api(app) {
     }
   });
 
-  router.delete("/talk/:id", async function(req, res, next) {
+  router.delete("/talk/:id", async function (req, res, next) {
     const { id } = req.params;
     try {
       const results = await service.delTalk(id);

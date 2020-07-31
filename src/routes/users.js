@@ -95,6 +95,31 @@ function Api(app) {
     }
   });
 
+  router.get("/token/:app", async function (req, res, next) {
+    const { app } = req.params;
+    const { user_id } = req.body;
+    try {
+      const results = await service.createToken(user_id, app);
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.patch("/token/:token", async function (req, res, next) {
+    const { token } = req.params;
+    try {
+      const results = await service.useToken(token);
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.get("/typehead/:search", async function (req, res, next) {
     const { search } = req.params;
     try {
@@ -114,22 +139,6 @@ function Api(app) {
       const status = results.status;
       req = results.results;
       response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/pdf/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { state } = req.query;
-    const { search } = req.query;
-    const { page } = req.query;
-    const { rows } = req.query;
-    try {
-      await service.pdfUsers({ id, state, search, page, rows }, function (binary) {
-        res.setHeader("Content-type", "application/pdf");
-        res.send(binary);
-      });
     } catch (err) {
       next(err);
     }

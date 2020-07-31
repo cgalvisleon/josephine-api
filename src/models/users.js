@@ -20,7 +20,7 @@ const {
   MSG0017,
   MSG0018,
 } = require("../lib/msg");
-const { createToken, userId } = require("./auth");
+const { createToken, useToken, userId } = require("./auth");
 const Mailer = require("./mailer");
 const AWS = require("./aws");
 const pdfUsers = require("../exports/pdf/pdfUsers");
@@ -64,11 +64,11 @@ class Model {
     username = username || "";
     password = password || "";
     app = app || "";
-    if (!username || username === "") {
+    if (username === "") {
       return respond(200, {}, 206, MSG0001);
-    } else if (!password || password === "") {
+    } else if (password === "") {
       return respond(200, {}, 206, MSG0002);
-    } else if (!app || app === "") {
+    } else if (app === "") {
       return respond(200, {}, 400, MSG0015);
     } else {
       const query = "SELECT * FROM js_core.SIGNIN($1, $2) RESULT";
@@ -215,9 +215,9 @@ class Model {
     id = id || "-1";
     password = password || "";
     confirmation = confirmation || "";
-    if (!password || password === "") {
+    if (password === "") {
       return respond(200, {}, 206, MSG0002);
-    } else if (!password || password.length < 8) {
+    } else if (password.length < 8) {
       return respond(200, {}, 206, MSG0006);
     } else if (password !== confirmation) {
       return respond(200, {}, 206, MSG0009);
@@ -265,7 +265,7 @@ class Model {
 
   async valid(username) {
     username = username || "";
-    if (!username || username === "") {
+    if (username === "") {
       return respond(200, {}, 206, MSG0001);
     } else {
       const query = "SELECT * FROM js_core.USER_VALID($1) RESULT";
@@ -311,27 +311,27 @@ class Model {
     city_id = city_id || "-1";
     code = code || "";
     app = app || "";
-    if (!username || username === "") {
+    if (username === "") {
       return respond(200, {}, 206, MSG0001);
     } else if (!validEmail(username) && !validCellPhone(username)) {
       return respond(200, {}, 206, MSG0008);
-    } else if (!password || password === "") {
+    } else if (password === "") {
       return respond(200, {}, 206, MSG0002);
-    } else if (!password || password.length < 8) {
+    } else if (password.length < 8) {
       return respond(200, {}, 206, MSG0006);
     } else if (password !== confirmation) {
       return respond(200, {}, 206, MSG0009);
-    } else if (!caption || caption === "") {
+    } else if (caption === "") {
       return respond(200, {}, 400, MSG0010);
-    } else if (!project || project === "") {
+    } else if (project === "") {
       return respond(200, {}, 400, MSG0011);
-    } else if (!module_id || module_id === "-1") {
+    } else if (module_id === "-1") {
       return respond(200, {}, 400, MSG0012);
-    } else if (!city_id || city_id === "-1") {
+    } else if (city_id === "-1") {
       return respond(200, {}, 400, MSG0013);
-    } else if (!code || code === "") {
+    } else if (code === "") {
       return respond(200, {}, 400, MSG0014);
-    } else if (!app || app === "") {
+    } else if (app === "") {
       return respond(200, {}, 400, MSG0015);
     } else {
       const query = "SELECT * FROM js_core.NEW_USER($1, $2, $3, $4, $5, $6, $7, $8) RESULT";
@@ -380,17 +380,17 @@ class Model {
     confirmation = confirmation || "";
     code = code || "";
     app = app || "";
-    if (!username || username === "") {
+    if (username === "") {
       return respond(200, {}, 206, MSG0001);
-    } else if (!password || password === "") {
+    } else if (password === "") {
       return respond(200, {}, 206, MSG0002);
-    } else if (!password || password.length < 8) {
+    } else if (password.length < 8) {
       return respond(200, {}, 206, MSG0006);
     } else if (password !== confirmation) {
       return respond(200, {}, 206, MSG0009);
-    } else if (!code || code === "") {
+    } else if (code === "") {
       return respond(200, {}, 400, MSG0014);
-    } else if (!app || app === "") {
+    } else if (app === "") {
       return respond(200, {}, 400, MSG0015);
     } else {
       const query = "SELECT * FROM js_core.FORGOT_PASSWORD($1, $2, $3, $4) RESULT";
@@ -440,9 +440,9 @@ class Model {
     project_id = project_id || "-1";
     profile_tp = profile_tp || "-1";
     user_id = user_id || "-1";
-    if (!username || username === "") {
+    if (username === "") {
       return respond(200, {}, 206, MSG0001);
-    } else if (!caption || caption === "") {
+    } else if (caption === "") {
       return respond(200, {}, 206, MSG0010);
     } else {
       const query = "SELECT * FROM js_core.SET_USER($1, $2, $3, $4, $5) RESULT";
@@ -504,9 +504,44 @@ class Model {
     }
   }
 
+  async createToken(userId, app) {
+    userId = userId || "-1";
+    app = app || "";
+    if (userId === "-1") {
+      return respond(200, {}, 400, "Usuario requerido");
+    } else if (app === "") {
+      return respond(200, {}, 400, "Aplicación requerida");
+    } else {
+      return await createToken(userId, app)
+        .then((result) => {
+          const res = result;
+          return respond(200, res);
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
+  }
+
+  async useToken(token) {
+    token = token || "";
+    if (token === "-1") {
+      return respond(200, {}, 400, "Token requerido");
+    } else {
+      return await useToken(token)
+        .then((result) => {
+          const res = result.result;
+          return respond(200, { user_id: res });
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0004);
+        });
+    }
+  }
+
   async auto(search) {
     search = search || "";
-    if (!search || search.length < 2) {
+    if (search.length < 2) {
       return respond(200, {});
     } else {
       const query = "SELECT * FROM js_core.AUTO_USERS($1, $2) RESULT";

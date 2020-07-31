@@ -1,12 +1,12 @@
+const PdfPrinter = require("pdfmake");
 const fonts = {
   Roboto: {
-    normal: "./assets/fonts/Roboto-Regular.ttf",
-    bold: "./assets/fonts/Roboto-Medium.ttf",
-    italics: "./assets/fonts/Roboto-Italic.ttf",
-    bolditalics: "./assets/fonts/Roboto-MediumItalic.ttf"
-  }
+    normal: "./src/assets/fonts/Roboto-Regular.ttf",
+    bold: "./src/assets/fonts/Roboto-Medium.ttf",
+    italics: "./src/assets/fonts/Roboto-Italic.ttf",
+    bolditalics: "./src/assets/fonts/Roboto-MediumItalic.ttf",
+  },
 };
-const PdfPrinter = require("pdfmake");
 
 class PdfMake {
   constructor() {
@@ -27,10 +27,10 @@ class PdfMake {
       let chunks = [];
       let result;
 
-      doc.on("data", function(chunk) {
+      doc.on("data", function (chunk) {
         chunks.push(chunk);
       });
-      doc.on("end", function() {
+      doc.on("end", function () {
         result = Buffer.concat(chunks);
         callback(result);
       });

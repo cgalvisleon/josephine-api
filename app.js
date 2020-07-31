@@ -20,6 +20,8 @@ const contactsApi = require("./src/routes/contacts");
 const profilesApi = require("./src/routes/profiles");
 const projectsApi = require("./src/routes/projects");
 const typesApi = require("./src/routes/types");
+const talkingApi = require("./src/routes/talkings");
+const pdfApi = require("./src/routes/pdf");
 
 // Body parser limit
 app.use(express.json({ limit: "50mb" }));
@@ -48,6 +50,8 @@ contactsApi(app);
 profilesApi(app);
 projectsApi(app);
 typesApi(app);
+talkingApi(app);
+pdfApi(app);
 
 // Catch 404
 app.use(notFoundHandler);
