@@ -20,7 +20,7 @@ const {
   MSG0017,
   MSG0018,
 } = require("../lib/msg");
-const { getSession, getToken, useToken, userId } = require("./auth");
+const { getSession, getSecret, secret, cleanSecret, userId } = require("./auth");
 const Mailer = require("./mailer");
 const AWS = require("./aws");
 const pdfUsers = require("../exports/pdf/pdfUsers");
@@ -483,11 +483,11 @@ class Model {
 
   async finish(user_id, project_id) {
     user_id = user_id || "-1";
-    profile_tp = profile_tp || "-1";
+    project_id = project_id || "-1";
     if (user_id === "-1") {
       return respond(200, {}, 400, "Usuario requerido");
-    } else if (profile_tp === "-1") {
-      return respond(200, {}, 400, "Perfil requerido");
+    } else if (project_id === "-1") {
+      return respond(200, {}, 400, "Proyecto requerido");
     } else {
       const query = "SELECT * FROM js_core.CHK_PROJECT_USER($1, $2, $3, $4) RESULT";
       const params = [project_id, user_id, "ALL", false];
@@ -504,15 +504,12 @@ class Model {
     }
   }
 
-  async getToken(id, app) {
+  async getSecret(id, group) {
     id = id || "-1";
-    app = app || "";
     if (id === "-1") {
       return respond(200, {}, 400, "Id requerido");
-    } else if (app === "") {
-      return respond(200, {}, 400, "Aplicación requerida");
     } else {
-      return await getToken(id, app)
+      return await getSecret(id, group)
         .then((result) => {
           const res = result.token;
           return respond(200, { token: res });
@@ -590,16 +587,15 @@ class Model {
   async pdfUsers({ state, token }, callback) {
     state = state || "0";
     try {
-      const project_id = await useToken(token);
-      const project = await this.project.getData(project_id).then((result) => {
-        return result;
-      });
+      const project_id = await secret(token).then();
+      cleanSecret(project_id);
+      const project = await this.project.getData(project_id).then();
       const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
       const params = [project_id, state, "", 1, 1000];
       const details = await this.db.get(query, params).then((result) => {
         return result.result;
       });
-      const data = { project, details };
+      const data = { project_id, project, details };
       const definition = await pdfUsers(data);
       const options = {};
       return await this.pdfmake.toStream(definition, options, callback);

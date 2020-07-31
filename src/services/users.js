@@ -84,9 +84,9 @@ class Service {
     return await model.finish(user_id, project_id);
   }
 
-  async getToken(id, app) {
+  async getSecret(id, group) {
     const model = new Model({});
-    return await model.getToken(id, app);
+    return await model.getSecret(id, group);
   }
 
   async auto(search) {

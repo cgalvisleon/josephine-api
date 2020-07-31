@@ -95,11 +95,11 @@ function Api(app) {
     }
   });
 
-  router.get("/token/:app", async function (req, res, next) {
-    const { app } = req.params;
-    const { id } = req.query;
+  router.get("/secret/:id", async function (req, res, next) {
+    const { id } = req.params;
+    const { group } = req.query;
     try {
-      const results = await service.getToken(id, app);
+      const results = await service.getSecret(id, group);
       const status = results.status;
       req = results.results;
       response.success(req, res, status);

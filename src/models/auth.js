@@ -43,21 +43,6 @@ async function getSession(userId, app) {
     });
 }
 
-async function getToken(id, app) {
-  const now = new Date();
-  const token = getUnixTime(now);
-  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3, $4) RESULT";
-  const params = [id, app, token.toString(), token.toString()];
-  return await db
-    .post(query, params)
-    .then(() => {
-      return { token };
-    })
-    .catch(() => {
-      return {};
-    });
-}
-
 async function verify(token, session) {
   const query = "SELECT * FROM js_core.CHECK_TOKEN($1, $2) RESULT";
   const params = [token, session];
@@ -89,8 +74,36 @@ async function userId(session) {
     });
 }
 
-async function useToken(token) {
-  const query = "SELECT * FROM js_core.USE_TOKEN($1) RESULT";
+async function getSecret(id, group) {
+  const now = new Date();
+  const token = getUnixTime(now);
+  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3, $4) RESULT";
+  const params = [id, `secret/${group}`, token.toString(), token.toString()];
+  return await db
+    .post(query, params)
+    .then(() => {
+      return { token };
+    })
+    .catch(() => {
+      return {};
+    });
+}
+
+function cleanSecret(group) {
+  const query = "SELECT * FROM js_core.CLEAN_SECRET($1) RESULT";
+  const params = [`secret/${group}`];
+  return db
+    .post(query, params)
+    .then(() => {
+      return {};
+    })
+    .catch(() => {
+      return {};
+    });
+}
+
+async function secret(token) {
+  const query = "SELECT * FROM js_core.GET_SECRET($1) RESULT";
   const params = [token];
   return await db
     .get(query, params)
@@ -106,8 +119,9 @@ module.exports = {
   encode,
   decode,
   getSession,
-  getToken,
+  getSecret,
   verify,
   userId,
-  useToken,
+  secret,
+  cleanSecret,
 };

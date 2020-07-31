@@ -7,26 +7,11 @@ const report = async function (data) {
   const keywords = "usuarios";
   const project = getValue(data, "project", {});
   const details = getValue(data, "details", {});
-  const logoDefault = "./assets/images/logo.png";
+  const logoDefault = "./src/assets/images/logo.png";
   const avatar = emptyValue(project, "avatar", "");
   const logo = await logoBase64(avatar, logoDefault).then((result) => {
     return result;
   });
-
-  let details_print = [];
-  details.list.map((item, i) => {
-    const item_print = [
-      { text: `${i + 1}`, alignment: "center", style: "td" },
-      { text: `${item.caption}`, alignment: "left" },
-      { text: `${item.username}`, alignment: "left" },
-      { text: `${item.profile}`, alignment: "left" },
-      { text: `${item.phone}`, alignment: "center" },
-      { text: `${item.cellphone}`, alignment: "center" },
-      { text: `${item.address}`, alignment: "left" },
-    ];
-    details_print.push(item_print);
-  });
-
   const tableLayout = {
     paddingLeft: function () {
       return 1;
@@ -41,6 +26,32 @@ const report = async function (data) {
       return 1;
     },
   };
+
+  let details_heights = [10];
+  let details_print = [
+    [
+      { text: `Nombre`, fillColor: "#CCCCCC", alignment: "center" },
+      { text: `Usuario`, fillColor: "#CCCCCC", alignment: "center" },
+      { text: `Perfil`, fillColor: "#CCCCCC", alignment: "center" },
+      { text: `Telefono`, fillColor: "#CCCCCC", alignment: "center" },
+      { text: `Celular`, fillColor: "#CCCCCC", alignment: "center" },
+      { text: `Dirección`, fillColor: "#CCCCCC", alignment: "center" },
+    ],
+  ];
+  let details_list = getValue(details, "list", []);
+  details_list.map((item, i) => {
+    const item_print = [
+      { text: `${i + 1}`, alignment: "center", style: "td" },
+      { text: `${getValue(item, "caption", "")}`, alignment: "left" },
+      { text: `${getValue(item, "username", "")}`, alignment: "left" },
+      { text: `${getValue(item, "profile", "")}`, alignment: "left" },
+      { text: `${getValue(item, "phone", "")}`, alignment: "center" },
+      { text: `${getValue(item, "cellphone", "")}`, alignment: "center" },
+      { text: `${getValue(item, "address", "")}`, alignment: "left" },
+    ];
+    details_heights.push(20);
+    details_print.push(item_print);
+  });
 
   const definition = {
     pageSize: "LETTER",
@@ -57,7 +68,7 @@ const report = async function (data) {
       margin: [28, 28, 28, 0],
       columns: [
         { width: 130, image: logo, fit: [130, 38] },
-        { width: "*", text: `${project.caption.toUpperCase()}\n${title.toUpperCase()}`, alignment: "center", fontSize: 9 },
+        { width: "*", text: `${getValue(project, "caption", "").toUpperCase()}\n${title.toUpperCase()}`, alignment: "center", fontSize: 9 },
         { width: 130, text: "" },
       ],
     },
@@ -69,27 +80,8 @@ const report = async function (data) {
         style: "tableHeader",
         table: {
           widths: ["*", 120, 80, 50, 50, 120],
-          heights: 10,
+          heights: [10],
           headerRows: 1,
-          body: [
-            [
-              { text: `Nombre`, fillColor: "#CCCCCC", alignment: "center" },
-              { text: `Usuario`, fillColor: "#CCCCCC", alignment: "center" },
-              { text: `Perfil`, fillColor: "#CCCCCC", alignment: "center" },
-              { text: `Telefono`, fillColor: "#CCCCCC", alignment: "center" },
-              { text: `Celular`, fillColor: "#CCCCCC", alignment: "center" },
-              { text: `Dirección`, fillColor: "#CCCCCC", alignment: "center" },
-            ],
-          ],
-        },
-        layout: tableLayout,
-      },
-      {
-        style: "tableData",
-        table: {
-          widths: [15, "*", 120, 80, 50, 50, 120],
-          heights: 20,
-          headerRows: 2,
           body: details_print,
         },
         layout: tableLayout,
