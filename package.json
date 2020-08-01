@@ -1,6 +1,6 @@
 {
   "name": "josephine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Access control and data manipulation",
   "main": "app.js",
   "scripts": {
