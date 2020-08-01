@@ -2,6 +2,7 @@ const express = require("express");
 const response = require("../lib/response");
 const Users = require("../services/users");
 const Projects = require("../services/projects");
+const Types = require("../services/types");
 const { config } = require("../config/index");
 
 function Api(app) {
@@ -17,6 +18,7 @@ function Api(app) {
 
   const users = new Users();
   const projects = new Projects();
+  const types = new Types();
 
   router.get("/", async function (req, res, next) {
     try {
@@ -153,7 +155,7 @@ function Api(app) {
     }
   });
 
-  router.get("/types/", async function (req, res, next) {
+  router.get("/types", async function (req, res, next) {
     const { id } = req.query;
     const { _class } = req.query;
     const { state } = req.query;
@@ -161,7 +163,7 @@ function Api(app) {
     const { page } = req.query;
     const { rows } = req.query;
     try {
-      const results = await service.list({
+      const results = await types.list({
         id,
         _class,
         state,
