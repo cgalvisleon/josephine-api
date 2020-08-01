@@ -153,6 +153,30 @@ function Api(app) {
     }
   });
 
+  router.get("/types/", async function (req, res, next) {
+    const { id } = req.query;
+    const { _class } = req.query;
+    const { state } = req.query;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      const results = await service.list({
+        id,
+        _class,
+        state,
+        search,
+        page,
+        rows,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.post("/issues", async function (req, res, next) {
     const { username } = req.body;
     const { access } = req.body;
