@@ -132,6 +132,8 @@ async function secret(token) {
 }
 
 module.exports = {
+  encoding,
+  decoding,
   encode,
   decode,
   getSession,
