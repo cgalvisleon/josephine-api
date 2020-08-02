@@ -4,6 +4,7 @@ const Users = require("../services/users");
 const Projects = require("../services/projects");
 const Types = require("../services/types");
 const { config } = require("../config/index");
+const { encoding, decoding } = require("../models/auth");
 
 function Api(app) {
   const router = express.Router();
@@ -23,6 +24,28 @@ function Api(app) {
   router.get("/", async function (req, res, next) {
     try {
       res.status(200).json(version);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/encoding/:payload", async function (req, res, next) {
+    const { payload } = req.params;
+    const { secret } = req.query;
+    try {
+      const key = encoding(payload, secret);
+      res.status(200).json({ key });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/decoding/:key", async function (req, res, next) {
+    const { key } = req.params;
+    const { secret } = req.query;
+    try {
+      const payload = decoding(key, secret);
+      res.status(200).json({ payload });
     } catch (err) {
       next(err);
     }

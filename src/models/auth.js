@@ -4,9 +4,25 @@ const { config } = require("../config");
 const PgLib = require("../lib/postgresql");
 const db = new PgLib();
 
+function encoding(payload, secret) {
+  try {
+    return jwt.encode(payload, secret);
+  } catch (err) {
+    return { err };
+  }
+}
+
+function decoding(key, secret) {
+  try {
+    return jwt.decode(key, secret);
+  } catch (err) {
+    return { err };
+  }
+}
+
 function encode(payload) {
   try {
-    return jwt.encode(payload, config.secret);
+    return encoding(payload, config.secret);
   } catch (err) {
     return { err };
   }
@@ -14,7 +30,7 @@ function encode(payload) {
 
 function decode(token) {
   try {
-    return jwt.decode(token, config.secret);
+    return decoding(token, config.secret);
   } catch (err) {
     return { err };
   }
