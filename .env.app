@@ -16,10 +16,10 @@ EMAIL_PORT=26
 
 // MONGO
 DB_PORT=
-DB_USER=db_user
-DB_PASSWORD=fOY1vgt5LmXoKd0h
-DB_HOST=cluster0-px4aj.mongodb.net
-DB_NAME=josephine_db
+DB_USER=josephine
+DB_PASSWORD=HsmBZx8xqcFHmfbx
+DB_HOST=cluster0.eb4hq.mongodb.net
+DB_NAME=josephine
 
 // POSTGRESQL
 PG_PORT=5432
