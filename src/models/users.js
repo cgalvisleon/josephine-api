@@ -251,8 +251,6 @@ class Model {
     id = id || "-1";
     if (user_id === "-1") {
       return respond(200, {}, 400, "Usuario requerido");
-    } else if (id === "-1") {
-      return respond(200, {}, 400, "Projecto requerido");
     } else {
       const query = "SELECT * FROM js_core.GET_USER_FOLDER($1, $2) RESULT";
       const params = [user_id, id];
