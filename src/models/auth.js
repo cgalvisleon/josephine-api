@@ -4,17 +4,20 @@ const { config } = require("../config");
 const PgLib = require("../lib/postgresql");
 const db = new PgLib();
 
-function encoding(payload, secret) {
+function encoding(sub, secret) {
   try {
+    let payload = {
+      sub: sub,
+    };
     return jwt.encode(payload, secret);
   } catch (err) {
     return { err };
   }
 }
 
-function decoding(key, secret) {
+function decoding(token, secret) {
   try {
-    return jwt.decode(key, secret);
+    return jwt.decode(token, secret, true);
   } catch (err) {
     return { err };
   }

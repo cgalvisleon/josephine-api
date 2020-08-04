@@ -307,6 +307,7 @@ class Model {
   }
 
   async signup(username, password, confirmation, caption, project, module_id, city_id, code, app) {
+    console.log(module_id);
     username = username || "";
     password = password || "";
     confirmation = confirmation || "";

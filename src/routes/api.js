@@ -45,7 +45,8 @@ function Api(app) {
     const { secret } = req.query;
     try {
       const payload = decoding(key, secret);
-      res.status(200).json({ payload });
+      const value = payload.sub;
+      res.status(200).json({ value });
     } catch (err) {
       next(err);
     }
