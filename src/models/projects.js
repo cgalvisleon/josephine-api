@@ -1,7 +1,6 @@
 const PgLib = require("../lib/postgresql");
 const { getValue, respond, genId } = require("../lib/utilities");
 const { MSG0004 } = require("../lib/msg");
-const xlsCellars = require("../exports/xls/xlsCellars");
 
 class Model {
   constructor(params) {
@@ -110,7 +109,7 @@ class Model {
     state = state || "";
     if (_id === "-1") {
       return respond(200, {}, 400, "Projecto requerido");
-    } else if (state) {
+    } else if (state === "") {
       return respond(200, {}, 400, "Estado requerido");
     } else {
       const query = "SELECT * FROM js_core.STATE_PROJECT($1, $2) RESULT";
@@ -156,79 +155,6 @@ class Model {
       });
   }
 
-  async warehouse() {
-    _id = _id || "-1";
-    const query = "SELECT * FROM js_store.GET_PROJECT_WAREHOUSE($1) RESULT";
-    const params = [_id];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async cellars(_id, state, search, page, rows) {
-    _id = _id || "-1";
-    state = state || "0";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_store.LIST_PROJECT_CELLAR($1, $2, $3, $4, $5) RESULT";
-    const params = [_id, state, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async references(_id, state, search, page, rows) {
-    _id = _id || "-1";
-    state = state || "0";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_store.LIST_REFERENCES($1, $2, $3, $4, $5) RESULT";
-    const params = [_id, state, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async typeReferences(_id, _class, state, search, page, rows) {
-    _id = _id || "-1";
-    _class = _class || "REFERENCE_TYPE00";
-    state = state || "0";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_store.LIST_REFERENCES($1, $2, $3, $4, $5, $6) RESULT";
-    const params = [_id, _class, state, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
   async documents(_id, _class, state, search, page, rows) {
     _id = _id || "-1";
     _class = _class || "";
@@ -259,73 +185,6 @@ class Model {
       .then((result) => {
         const res = result.result;
         return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async kardex(cellar_id, search, page, rows) {
-    cellar_id = cellar_id || "";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_store.LIST_CELLAR_KARDEX($1, $2, $3, $4) RESULT";
-    const params = [cellar_id, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  async stocks(cellar_id, search, page, rows) {
-    cellar_id = cellar_id || "";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_store.LIST_CELLAR_STOCKS($1, $2, $3, $4) RESULT";
-    const params = [cellar_id, search, page, rows];
-    return await this.db
-      .get(query, params)
-      .then((result) => {
-        const res = result.result;
-        return respond(200, res);
-      })
-      .catch((err) => {
-        return respond(200, { err }, 400, MSG0004);
-      });
-  }
-
-  xlsCellars(project_id, state, search, page, rows, user_id, to) {
-    state = state || "0";
-    search = search || "";
-    page = page || 1;
-    rows = rows || 30;
-    const query = "SELECT * FROM js_store.LIST_PROJECT_CELLAR($1, $2, $3, $4, $5) RESULT";
-    const params = [project_id, state, search, page, rows];
-    return this.db
-      .get(query, params)
-      .then((result) => {
-        const data = result.result;
-        const params = {
-          details: data,
-          project_id,
-          to,
-          user_id,
-        };
-        xlsCellars(params);
-      })
-      .then(() => {
-        const now = new Date();
-        return respond(200, {
-          now,
-          message: "El archivo esta en proceso y será enviado a su correo.",
-        });
       })
       .catch((err) => {
         return respond(200, { err }, 400, MSG0004);
