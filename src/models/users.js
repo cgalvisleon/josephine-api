@@ -305,7 +305,6 @@ class Model {
   }
 
   async signup(username, password, confirmation, caption, project, module_id, city_id, code, app) {
-    console.log(module_id);
     username = username || "";
     password = password || "";
     confirmation = confirmation || "";
@@ -460,8 +459,8 @@ class Model {
             throw msg;
           } else {
             const isNew = getValue(res, "isNew", false);
+            const profile = getValue(res, "profile", "");
             if (validEmail(username)) {
-              const profile = getValue(res, "profile", "");
               const project = getValue(res, "project", "");
               if (isNew) {
                 this.mailer.sendAlertMail(
