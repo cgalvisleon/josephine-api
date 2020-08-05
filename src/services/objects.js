@@ -1,4 +1,4 @@
-const Model = require('../models/objects');
+const Model = require("../models/objects");
 
 class Service {
   constructor() {}
@@ -16,9 +16,8 @@ class Service {
   }
 
   async state({ id, state }) {
-    const params = { _id: id };
-    const model = new Model(params);
-    return await model.state(state);
+    const model = new Model({});
+    return await model.state(id, state);
   }
 }
 
