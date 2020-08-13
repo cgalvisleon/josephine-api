@@ -29,14 +29,24 @@ class Service {
     return await model.dpa(id);
   }
 
-  async documents({ id, _class, state, search, page, rows }) {
+  async documents({ project_id, _class, state, search, page, rows }) {
     const model = new Model({});
-    return await model.documents(id, _class, state, search, page, rows);
+    return await model.documents(project_id, _class, state, search, page, rows);
   }
 
   async document({ _class, id }) {
     const model = new Model({});
     return await model.document(_class, id);
+  }
+
+  async modules({ project_id }) {
+    const model = new Model({});
+    return await model.modules(project_id);
+  }
+
+  async chkModules({ project_id, module_id, chk }) {
+    const model = new Model({});
+    return await model.chkModules(project_id, module_id, chk);
   }
 }
 

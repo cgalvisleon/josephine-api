@@ -1,11 +1,11 @@
 const express = require("express");
 const Service = require("../services/contacts");
 const response = require("../lib/response");
-//const isAuth = require("../middleware/auth");
+const isAuth = require("../middleware/auth");
 
 function Api(app) {
   const router = express.Router();
-  //app.use("/contacts", isAuth);
+  app.use("/contacts", isAuth);
   app.use("/contacts", router);
 
   const service = new Service();
