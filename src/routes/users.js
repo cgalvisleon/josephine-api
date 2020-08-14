@@ -10,19 +10,6 @@ function Api(app) {
 
   const service = new Service();
 
-  router.get("/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { project_id } = req.query;
-    try {
-      const results = await service.user({ id, project_id });
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
   router.get("/", async function (req, res, next) {
     const { id } = req.query;
     const { state } = req.query;
@@ -31,6 +18,19 @@ function Api(app) {
     const { rows } = req.query;
     try {
       const results = await service.list({ id, state, search, page, rows });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/:id", async function (req, res, next) {
+    const { id } = req.params;
+    const { project_id } = req.query;
+    try {
+      const results = await service.user({ id, project_id });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);

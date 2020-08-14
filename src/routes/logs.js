@@ -10,10 +10,12 @@ function Api(app) {
 
   const service = new Service();
 
-  router.get("/:id", async function (req, res, next) {
-    const { id } = req.params;
+  router.get("/", async function (req, res, next) {
+    const { search } = req.query;
+    const { rows } = req.query;
+    const { page } = req.query;
     try {
-      const results = await service.get({ collection: "debug", id });
+      const results = await service.logs({ collection: "debug", search, rows, page });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);
@@ -22,12 +24,10 @@ function Api(app) {
     }
   });
 
-  router.get("/", async function (req, res, next) {
-    const { search } = req.query;
-    const { rows } = req.query;
-    const { page } = req.query;
+  router.get("/:id", async function (req, res, next) {
+    const { id } = req.params;
     try {
-      const results = await service.logs({ collection: "debug", search, rows, page });
+      const results = await service.get({ collection: "debug", id });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);
