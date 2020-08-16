@@ -2,8 +2,8 @@ require("dotenv").config();
 const pjson = require("../../package.json");
 
 const config = {
-  project: pjson.name,
-  version: pjson.version,
+  project: process.env.PROJECT || pjson.name,
+  version: process.env.VERSION || pjson.version,
   dev: process.env.NODE_ENV !== "production",
   port: process.env.PORT || 3030,
   cors: process.env.CORS,
