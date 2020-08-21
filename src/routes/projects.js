@@ -50,10 +50,12 @@ function Api(app) {
   router.get("/var/:project_id", async function (req, res, next) {
     const { project_id } = req.params;
     const { _var } = req.query;
+    const { _default } = req.query;
     try {
       const results = await service.getVar({
         project_id,
         _var,
+        _default,
       });
       const status = results.status;
       req = results.results;

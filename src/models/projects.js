@@ -169,9 +169,9 @@ class Model {
       });
   }
 
-  async getVar(project_id, _var) {
-    const query = "SELECT * FROM js_core.GET_VAR($1) RESULT";
-    const params = [`${project_id}_${_var}`];
+  async getVar(project_id, _var, _default) {
+    const query = "SELECT * FROM js_core.GET_VAR($1, $2) RESULT";
+    const params = [`${project_id}_${_var}`, _default];
     return await this.db
       .get(query, params)
       .then((result) => {
