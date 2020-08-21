@@ -156,8 +156,9 @@ class Model {
   }
 
   async setVar(project_id, _var, value) {
+    _var = `${project_id}_${_var}`;
     const query = "SELECT * FROM js_core.SET_VAR($1, $2) RESULT";
-    const params = [`${project_id}_${_var}`, value];
+    const params = [_var, value];
     return await this.db
       .get(query, params)
       .then((result) => {
@@ -170,8 +171,9 @@ class Model {
   }
 
   async getVar(project_id, _var, _default) {
+    _var = `${project_id}_${_var}`;
     const query = "SELECT * FROM js_core.GET_VAR($1, $2) RESULT";
-    const params = [`${project_id}_${_var}`, _default];
+    const params = [_var, _default];
     return await this.db
       .get(query, params)
       .then((result) => {
