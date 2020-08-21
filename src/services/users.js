@@ -79,6 +79,11 @@ class Service {
     return await model.set(username, caption, project_id, profile_tp, user_id);
   }
 
+  async chkProject({ user_id, project_id, profile_tp, chk }) {
+    const model = new Model({});
+    return await model.chkProject(user_id, project_id, profile_tp, chk);
+  }
+
   async finish(user_id, project_id) {
     const model = new Model({});
     return await model.finish(user_id, project_id);

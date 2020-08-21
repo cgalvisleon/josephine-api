@@ -510,6 +510,29 @@ class Model {
     }
   }
 
+  async chkProject(user_id, project_id, profile_tp, chk) {
+    user_id = user_id || "-1";
+    project_id = project_id || "-1";
+    if (user_id === "-1") {
+      return respond(200, {}, 400, "Usuario requerido");
+    } else if (project_id === "-1") {
+      return respond(200, {}, 400, "Proyecto requerido");
+    } else {
+      const query = "SELECT * FROM js_core.CHK_PROJECT_USER($1, $2, $3, $4) RESULT";
+      const params = [project_id, user_id, profile_tp, chk];
+      return await this.db
+        .post(query, params)
+        .then((result) => {
+          const res = result.result;
+          this.db.pub(`users/${project_id}`, { user_id, project_id, profile_tp, chk });
+          return respond(200, { res });
+        })
+        .catch((err) => {
+          return respond(200, { err }, 400, MSG0003);
+        });
+    }
+  }
+
   async finish(user_id, project_id) {
     user_id = user_id || "-1";
     project_id = project_id || "-1";
@@ -578,8 +601,8 @@ class Model {
       "Solicitud de revisión",
       `El usuario ${username}`,
       `Acabas de reportar una solicitud de revisión de uso indebido: <p>${
-        Boolean(access) ? "<strong>Reporta acceso indebido</strong>" : ""
-      }</p><p>${Boolean(use) ? "<strong>Reporta uso indebido de tus datos</strong>" : ""}</p>`,
+        access ? "<strong>Reporta acceso indebido</strong>" : ""
+      }</p><p>${use ? "<strong>Reporta uso indebido de tus datos</strong>" : ""}</p>`,
       `Iniciar sesión`,
       `${url}/signin`,
       "<strong>Atención prioritaria</strong>"

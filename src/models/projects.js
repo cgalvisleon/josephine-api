@@ -155,6 +155,34 @@ class Model {
       });
   }
 
+  async setVar(project_id, _var, value) {
+    const query = "SELECT * FROM js_core.SET_VAR($1, $2) RESULT";
+    const params = [`${project_id}_${_var}`, value];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, res);
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
+  async getVar(project_id, _var) {
+    const query = "SELECT * FROM js_core.GET_VAR($1) RESULT";
+    const params = [`${project_id}_${_var}`];
+    return await this.db
+      .get(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, res);
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
+  }
+
   async documents(_id, _class, state, search, page, rows) {
     _id = _id || "-1";
     _class = _class || "";

@@ -47,6 +47,40 @@ function Api(app) {
     }
   });
 
+  router.get("/var/:project_id", async function (req, res, next) {
+    const { project_id } = req.params;
+    const { _var } = req.query;
+    try {
+      const results = await service.getVar({
+        project_id,
+        _var,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/var/:project_id", async function (req, res, next) {
+    const { project_id } = req.params;
+    const { _var } = req.body;
+    const { value } = req.body;
+    try {
+      const results = await service.setVar({
+        project_id,
+        _var,
+        value,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.get("/modules/:project_id", async function (req, res, next) {
     const { project_id } = req.params;
     try {

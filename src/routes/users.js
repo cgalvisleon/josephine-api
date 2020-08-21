@@ -82,6 +82,21 @@ function Api(app) {
     }
   });
 
+  router.patch("/chkProject/:id", async function (req, res, next) {
+    const { id } = req.params;
+    const { project_id } = req.body;
+    const { profile_tp } = req.body;
+    const { chk } = req.body;
+    try {
+      const results = await service.chkProject({ user_id: id, project_id, profile_tp, chk });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.patch("/finish/:id", async function (req, res, next) {
     const { id } = req.params;
     const { project_id } = req.body;

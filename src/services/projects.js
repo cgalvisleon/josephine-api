@@ -29,6 +29,16 @@ class Service {
     return await model.dpa(id);
   }
 
+  async setVar({ project_id, _var, value }) {
+    const model = new Model({});
+    return await model.setVar(project_id, _var, value);
+  }
+
+  async getVar({ project_id, _var }) {
+    const model = new Model({});
+    return await model.getVar(project_id, _var);
+  }
+
   async documents({ project_id, _class, state, search, page, rows }) {
     const model = new Model({});
     return await model.documents(project_id, _class, state, search, page, rows);
