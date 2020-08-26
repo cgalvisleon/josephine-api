@@ -9,7 +9,7 @@ const config = {
   cors: process.env.CORS,
   secret: process.env.SECRET,
   company: process.env.COMPANY,
-  url: process.env.URL,
+  url: process.env.URL || "http://192.168.0.3:3300",
   urlIssues: process.env.URLISSUES,
   /** Email Suport */
   serviceEmail: process.env.SERVICE_EMAIL,
