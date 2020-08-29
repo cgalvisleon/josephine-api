@@ -24,7 +24,7 @@ const DB_READ_PORT = config.pgReadPort;
 
 class PgLib {
   constructor() {
-    this.log = new LogLib(config.project, "postgresql");
+    this.log = new LogLib("postgresql");
     this.type = "Postgresql";
     this.db = new Client({
       user: USER,
@@ -102,12 +102,14 @@ class PgLib {
     db.query("LISTEN set");
     db.on("notification", (msg) => {
       const res = JSON.parse(msg.payload);
-      const type = res.type || "";
       const project_id = res.project_id || "-1";
       const _class = res._class || "-1";
       const _state = res._state || "0";
-      socket.io.emit(`${type}/${project_id}`, res);
+      socket.io.emit(`${_class}/${project_id}`, res);
       this.count(project_id, _class, _state);
+      if (_state !== "0") {
+        this.count(project_id, _class, "0");
+      }
     });
   }
 
