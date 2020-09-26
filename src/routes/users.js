@@ -101,20 +101,7 @@ function Api(app) {
     const { id } = req.params;
     const { project_id } = req.body;
     try {
-      const results = await service.finish(id, project_id);
-      const status = results.status;
-      req = results.results;
-      response.success(req, res, status);
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  router.get("/secret/:id", async function (req, res, next) {
-    const { id } = req.params;
-    const { group } = req.query;
-    try {
-      const results = await service.getSecret(id, group);
+      const results = await service.finish({ user_id: id, project_id });
       const status = results.status;
       req = results.results;
       response.success(req, res, status);

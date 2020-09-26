@@ -84,14 +84,9 @@ class Service {
     return await model.chkProject(user_id, project_id, profile_tp, chk);
   }
 
-  async finish(user_id, project_id) {
+  async finish({ user_id, project_id }) {
     const model = new Model({});
     return await model.finish(user_id, project_id);
-  }
-
-  async getSecret(id, group) {
-    const model = new Model({});
-    return await model.getSecret(id, group);
   }
 
   async auto(search) {
@@ -114,9 +109,9 @@ class Service {
     return await model.list(id, state, search, page, rows);
   }
 
-  async pdfUsers({ state, token }, callback) {
+  async pdfUsers({ project_id, state }, callback) {
     const model = new Model({});
-    return await model.pdfUsers({ state, token }, callback);
+    return await model.pdfUsers({ project_id, state }, callback);
   }
 }
 

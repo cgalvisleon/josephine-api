@@ -20,7 +20,7 @@ const {
   MSG0017,
   MSG0018,
 } = require("../lib/msg");
-const { getSession, getSecret, secret, cleanSecret, userId } = require("./auth");
+const { getToken, userId } = require("./auth");
 const Mailer = require("./mailer");
 const AWS = require("./aws");
 const { config } = require("../config/index");
@@ -89,7 +89,7 @@ class Model {
             throw msg;
           } else {
             const userId = getValue(result, "_id", "");
-            return getSession(userId, app).then((result) => {
+            return getToken(userId, app).then((result) => {
               return result;
             });
           }
@@ -350,14 +350,14 @@ class Model {
             throw msg;
           } else {
             const userId = getValue(result, "_id", "");
-            return getSession(userId, app).then((result) => {
+            return getToken(userId, app).then((result) => {
               return result;
             });
           }
         })
         .then((result) => {
           if (validCellPhone(username)) {
-            this.aws.sendSMS(username, "Inicio de sesión", "${project}; Acabas de iniciar sesión");
+            this.aws.sendSMS(username, "Inicio de sesión", `${project}; Acabas de iniciar sesión`);
           }
           return respond(200, result);
         })
@@ -409,7 +409,7 @@ class Model {
             throw msg;
           } else {
             const userId = getValue(result, "_id", "");
-            return getSession(userId, app).then((result) => {
+            return getToken(userId, app).then((result) => {
               return result;
             });
           }
@@ -427,7 +427,7 @@ class Model {
               "Gracias por trabajar con nosotros"
             );
           } else if (validCellPhone(username)) {
-            this.aws.sendSMS(username, "Recuperación de contraseña", "${project}; Acabas de recuperar tu contraseña");
+            this.aws.sendSMS(username, "Recuperación de contraseña", `${project}; Acabas de recuperar tu contraseña`);
           }
           return respond(200, result);
         })
@@ -547,27 +547,11 @@ class Model {
         .post(query, params)
         .then((result) => {
           const res = result.result;
-          this.db.pub(`users/${project_id}`, { _id: user_id, _state: "2" });
+          this.db.pub(`users/${project_id}`, { user_id, project_id, profile_tp: "ALL", chk: false });
           return respond(200, { res });
         })
         .catch((err) => {
           return respond(200, { err }, 400, MSG0003);
-        });
-    }
-  }
-
-  async getSecret(id, group) {
-    id = id || "-1";
-    if (id === "-1") {
-      return respond(200, {}, 400, "Id requerido");
-    } else {
-      return await getSecret(id, group)
-        .then((result) => {
-          const res = result.token;
-          return respond(200, { token: res });
-        })
-        .catch((err) => {
-          return respond(200, { err }, 400, MSG0004);
         });
     }
   }
@@ -600,9 +584,9 @@ class Model {
       "Reporte de acceso indebido",
       "Solicitud de revisión",
       `El usuario ${username}`,
-      `Acabas de reportar una solicitud de revisión de uso indebido: <p>${
-        access ? "<strong>Reporta acceso indebido</strong>" : ""
-      }</p><p>${use ? "<strong>Reporta uso indebido de tus datos</strong>" : ""}</p>`,
+      `Acabas de reportar una solicitud de revisión de uso indebido: <p>${access ? "<strong>Reporta acceso indebido</strong>" : ""}</p><p>${
+        use ? "<strong>Reporta uso indebido de tus datos</strong>" : ""
+      }</p>`,
       `Iniciar sesión`,
       `${url}/signin`,
       "<strong>Atención prioritaria</strong>"
@@ -655,11 +639,10 @@ class Model {
       });
   }
 
-  async pdfUsers({ state, token }, callback) {
+  async pdfUsers({ project_id, state }, callback) {
+    project_id = project_id || "-1";
     state = state || "0";
     try {
-      const project_id = await secret(token).then();
-      cleanSecret(project_id);
       const project = await this.project.getData(project_id).then();
       const query = "SELECT * FROM js_core.LIST_USERS($1, $2, $3, $4, $5) RESULT";
       const params = [project_id, state, "", 1, 1000];

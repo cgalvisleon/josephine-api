@@ -39,22 +39,21 @@ function decode(token) {
   }
 }
 
-async function getSession(userId, app) {
+async function getToken(userId, app) {
   const now = new Date();
   let payload = {
+    iat: getUnixTime(now),
     sub: userId,
     app: app,
   };
-  const session = encode(payload);
-  payload.iat = getUnixTime(now);
   const token = encode(payload);
-  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3, $4) RESULT";
-  const params = [userId, app, token, session];
+  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3) RESULT";
+  const params = [userId, app, token];
   return await db
     .post(query, params)
     .then(() => {
-      const res = { token, session };
-      db.pub(`tokens/${session}`, res);
+      const res = { token };
+      db.pub(`tokens/${userId}`, res);
       return res;
     })
     .catch(() => {
@@ -62,26 +61,26 @@ async function getSession(userId, app) {
     });
 }
 
-async function verify(token, session) {
-  const query = "SELECT * FROM js_core.CHECK_TOKEN($1, $2) RESULT";
-  const params = [token, session];
+async function authorization(token) {
+  const query = "SELECT * FROM js_core.CHECK_TOKEN($1) RESULT";
+  const params = [token];
   return await db
     .get(query, params)
     .then((result) => {
       const res = result.result;
       if (res === "-1") {
-        return { verify: false, user_id: "-1" };
+        return { authorization: false, user_id: "-1" };
       } else {
-        return { verify: true, user_id: res };
+        return { authorization: true, user_id: res };
       }
     })
     .catch(() => {
-      return { verify: false, user_id: "" };
+      return { authorization: false, user_id: "-1" };
     });
 }
 
 async function userId(session) {
-  const query = "SELECT * FROM js_core.SESSION_USER_ID($1) RESULT";
+  const query = "SELECT * FROM js_core.CHECK_TOKEN($1) RESULT";
   const params = [session];
   return await db
     .get(query, params)
@@ -90,34 +89,6 @@ async function userId(session) {
     })
     .catch(() => {
       return "-1";
-    });
-}
-
-async function getSecret(id, group) {
-  const now = new Date();
-  const token = getUnixTime(now);
-  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3, $4) RESULT";
-  const params = [id, `secret/${group}`, token.toString(), token.toString()];
-  return await db
-    .post(query, params)
-    .then(() => {
-      return { token };
-    })
-    .catch(() => {
-      return {};
-    });
-}
-
-function cleanSecret(group) {
-  const query = "SELECT * FROM js_core.CLEAN_SECRET($1) RESULT";
-  const params = [`secret/${group}`];
-  return db
-    .post(query, params)
-    .then(() => {
-      return {};
-    })
-    .catch(() => {
-      return {};
     });
 }
 
@@ -139,10 +110,8 @@ module.exports = {
   decoding,
   encode,
   decode,
-  getSession,
-  getSecret,
-  verify,
+  getToken,
+  authorization,
   userId,
   secret,
-  cleanSecret,
 };
