@@ -58,6 +58,7 @@ class PgLib {
             reject(err);
           }
           debug("Connected succesfully to postgresql");
+          this.listen(this.db);
           resolve(this.db);
         });
       });
@@ -90,7 +91,6 @@ class PgLib {
             reject(err);
           }
           debug("Connected succesfully to read");
-          this.listen(this.dbRead);
           resolve(this.dbRead);
         });
       });
@@ -102,10 +102,24 @@ class PgLib {
     db.query("LISTEN set");
     db.on("notification", (msg) => {
       const res = JSON.parse(msg.payload);
+      const action = res.action || "";
+      const type = res.type || "";
       const project_id = res.project_id || "-1";
       const _class = res._class || "-1";
       const _state = res._state || "0";
-      socket.io.emit(`${_class}/${project_id}`, res);
+      const _id = res._id || "-1";
+      debug(res);
+      if (action === "del") {
+        this.pubDel(project_id, _class, _id, type, res);
+      } else if (action === "signout") {
+        const app = res.app || "";
+        const token = res.token || "";
+        this.pudSignOut(app, token);
+      } else if (type === "object") {
+        this.pubObject(project_id, _class, _id);
+      } else if (type === "document") {
+        this.pubDocument(project_id, _class, _id);
+      }
       this.count(project_id, _class, _state);
       if (_state !== "0") {
         this.count(project_id, _class, "0");
@@ -141,6 +155,58 @@ class PgLib {
 
   pub(theme, res) {
     socket.io.emit(theme, res);
+  }
+
+  pubObject(project_id, _class, _id) {
+    const query = "SELECT * FROM js_core.GET_OBJECT($1, $2) RESULT";
+    const params = [_class, _id];
+    return this.get(query, params)
+      .then((result) => {
+        const res = result.result;
+        this.log.object(res);
+        socket.io.emit(`${_class}/${project_id}`, res);
+        socket.io.emit(`${_class}/${_id}`, res);
+        return res;
+      })
+      .catch((err) => {
+        this.log("error", err);
+        throw err;
+      });
+  }
+
+  pubDocument(project_id, _class, _id) {
+    const query = "SELECT * FROM js_core.GET_DOCUMENT($1, $2) RESULT";
+    const params = [_class, _id];
+    return this.get(query, params)
+      .then((result) => {
+        const res = result.result;
+        this.log.document(res);
+        socket.io.emit(`${_class}/${project_id}`, res);
+        socket.io.emit(`${_class}/${_id}`, res);
+        return res;
+      })
+      .catch((err) => {
+        this.log("error", err);
+        throw err;
+      });
+  }
+
+  pubDel(project_id, _class, _id, type, res) {
+    if (type === "object") {
+      this.log.delete("objects", _id);
+    } else if (type === "document") {
+      this.log.delete("documents", _id);
+    }
+    socket.io.emit(`delete/${_class}/${project_id}`, res);
+    socket.io.emit(`delete/${_class}/${_id}`, res);
+    return res;
+  }
+
+  pudSignOut(app, token) {
+    const res = { app, token };
+    socket.io.emit(`match360/signout/${app}`, res);
+    socket.io.emit(`match360/signout/${token}`, res);
+    return res;
   }
 
   count(project_id, _class, _state) {

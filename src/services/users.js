@@ -8,14 +8,14 @@ class Service {
     return await model.signIn(username, password, app);
   }
 
-  async profile({ id }) {
+  async profile({ _id }) {
     const model = new Model({});
-    return await model.profile(id);
+    return await model.profile(_id);
   }
 
-  async user({ id, project_id }) {
+  async user({ _id, project_id }) {
     const model = new Model({});
-    return await model.user(id, project_id);
+    return await model.user(_id, project_id);
   }
 
   async setProfile(
@@ -104,9 +104,9 @@ class Service {
     return await model.delete(session);
   }
 
-  async list({ id, state, search, page, rows }) {
+  async list({ project_id, state, search, page, rows }) {
     const model = new Model({});
-    return await model.list(id, state, search, page, rows);
+    return await model.list(project_id, state, search, page, rows);
   }
 
   async pdfUsers({ project_id, state }, callback) {

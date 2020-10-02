@@ -47,13 +47,13 @@ async function getToken(userId, app) {
     app: app,
   };
   const token = encode(payload);
-  const query = "SELECT * FROM js_core.REG_TOKEN($1, $2, $3) RESULT";
+  const query = "SELECT * FROM match360.REG_TOKEN($1, $2, $3) RESULT";
   const params = [userId, app, token];
   return await db
     .post(query, params)
     .then(() => {
       const res = { token };
-      db.pub(`tokens/${userId}`, res);
+      db.pub(`match360/${app}/${userId}`, res);
       return res;
     })
     .catch(() => {
@@ -62,7 +62,7 @@ async function getToken(userId, app) {
 }
 
 async function authorization(token) {
-  const query = "SELECT * FROM js_core.CHECK_TOKEN($1) RESULT";
+  const query = "SELECT * FROM match360.CHECK_TOKEN($1) RESULT";
   const params = [token];
   return await db
     .get(query, params)
@@ -79,26 +79,13 @@ async function authorization(token) {
     });
 }
 
-async function userId(session) {
-  const query = "SELECT * FROM js_core.CHECK_TOKEN($1) RESULT";
-  const params = [session];
-  return await db
-    .get(query, params)
-    .then((result) => {
-      return result;
-    })
-    .catch(() => {
-      return "-1";
-    });
-}
-
-async function secret(token) {
-  const query = "SELECT * FROM js_core.GET_SECRET($1) RESULT";
+async function userId(token) {
+  const query = "SELECT * FROM match360.CHECK_TOKEN($1) RESULT";
   const params = [token];
   return await db
     .get(query, params)
     .then((result) => {
-      return result.result;
+      return result;
     })
     .catch(() => {
       return "-1";
@@ -113,5 +100,4 @@ module.exports = {
   getToken,
   authorization,
   userId,
-  secret,
 };
