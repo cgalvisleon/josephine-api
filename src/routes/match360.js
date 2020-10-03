@@ -10,6 +10,26 @@ function Api(app) {
 
   const service = new Service();
 
+  router.get("/", async function (req, res, next) {
+    const { user_id } = req.body;
+    const { search } = req.query;
+    const { page } = req.query;
+    const { rows } = req.query;
+    try {
+      const results = await service.list({
+        user_id,
+        search,
+        page,
+        rows,
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.post("/", async function (req, res, next) {
     const { user_id } = req.body;
     const { token } = req.body;
