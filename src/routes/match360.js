@@ -20,7 +20,7 @@ function Api(app) {
         user_id,
         search,
         page,
-        rows,
+        rows
       });
       const status = results.status;
       req = results.results;

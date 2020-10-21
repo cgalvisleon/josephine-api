@@ -30,7 +30,7 @@ class Model {
       _data: {},
       modules: [],
       _v: 1,
-      user_id: getValue(this.params, "user_id", "-1"),
+      user_id: getValue(this.params, "user_id", "-1")
     };
   }
 
@@ -89,7 +89,7 @@ class Model {
         identification_tp,
         identification,
         data,
-        user_id,
+        user_id
       ];
       return await this.db
         .post(query, params)
@@ -125,6 +125,20 @@ class Model {
           return respond(200, { err }, 400, MSG0004);
         });
     }
+  }
+
+  async init() {
+    const query = "SELECT * FROM js_core.INIT_PROJECT() RESULT";
+    const params = [];
+    return await this.db
+      .post(query, params)
+      .then((result) => {
+        const res = result.result;
+        return respond(200, { init: res });
+      })
+      .catch((err) => {
+        return respond(200, { err }, 400, MSG0004);
+      });
   }
 
   async dpas(_class, mainId, state, search, page, rows) {

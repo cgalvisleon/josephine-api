@@ -19,6 +19,11 @@ class Service {
     return await model.state(id, state);
   }
 
+  async init() {
+    const model = new Model({});
+    return await model.init();
+  }
+
   async dpas({ id, _class, state, search, page, rows }) {
     const model = new Model({});
     return await model.dpas(_class, id, state, search, page, rows);

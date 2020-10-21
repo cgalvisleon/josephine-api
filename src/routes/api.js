@@ -3,6 +3,7 @@ const response = require("../lib/response");
 const Users = require("../services/users");
 const Projects = require("../services/projects");
 const Types = require("../services/types");
+const Match360 = require("../services/match360");
 const { config } = require("../config/index");
 const { encoding, decoding } = require("../models/auth");
 
@@ -14,16 +15,28 @@ function Api(app) {
     version: config.version,
     project: config.project,
     company: config.company,
-    web: config.url,
+    web: config.url
   };
 
   const users = new Users();
   const projects = new Projects();
   const types = new Types();
+  const match360 = new Match360();
 
   router.get("/", async function (req, res, next) {
     try {
       res.status(200).json(version);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get("/init", async function (req, res, next) {
+    try {
+      const results = await projects.init();
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
     } catch (err) {
       next(err);
     }
@@ -98,7 +111,7 @@ function Api(app) {
         module_id,
         city_id,
         code,
-        app,
+        app
       });
       const status = results.status;
       req = results.results;
@@ -120,7 +133,7 @@ function Api(app) {
         password,
         confirmation,
         code,
-        app,
+        app
       });
       const status = results.status;
       req = results.results;
@@ -130,13 +143,42 @@ function Api(app) {
     }
   });
 
-  router.post("/message", async function (req, res, next) {
-    const { theme } = req.body;
-    const { message } = req.body;
+  router.post("/match360/signup", async function (req, res, next) {
+    const { username } = req.body;
+    const { caption } = req.body;
+    const { code } = req.body;
+    const { app } = req.body;
     try {
-      socket.io.emit(theme, { message });
-      const status = 200;
-      req = { message };
+      const results = await match360.signUp({
+        username,
+        caption,
+        code,
+        app
+      });
+      const status = results.status;
+      req = results.results;
+      response.success(req, res, status);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post("/match360/newuser", async function (req, res, next) {
+    const { username } = req.body;
+    const { caption } = req.body;
+    const { project_id } = req.body;
+    const { profile_id } = req.body;
+    const { app } = req.body;
+    try {
+      const results = await match360.newUser({
+        username,
+        caption,
+        project_id,
+        profile_id,
+        app
+      });
+      const status = results.status;
+      req = results.results;
       response.success(req, res, status);
     } catch (err) {
       next(err);
@@ -169,7 +211,7 @@ function Api(app) {
         state,
         search,
         page,
-        rows,
+        rows
       });
       const status = results.status;
       req = results.results;
@@ -193,7 +235,7 @@ function Api(app) {
         state,
         search,
         page,
-        rows,
+        rows
       });
       const status = results.status;
       req = results.results;
