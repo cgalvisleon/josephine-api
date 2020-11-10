@@ -64,6 +64,6 @@
     "*.js": "eslint --cache --fix"
   },
   "prettier": {
-    "printWidth": 140
+    "printWidth": 120
   }
 }
