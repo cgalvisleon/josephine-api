@@ -1,14 +1,14 @@
-const QRCode = require('qrcode');
+const QRCode = require("qrcode");
 
 class QrLib {
   constructor() {}
 
   async genQRCode(value) {
     return await QRCode.toDataURL(value)
-      .then(url => {
+      .then((url) => {
         return url;
       })
-      .catch(err => {
+      .catch((err) => {
         return err.stack;
       });
   }
